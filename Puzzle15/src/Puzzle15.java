@@ -11,6 +11,7 @@ import java.util.Stack;
 
 
 
+
 public class Puzzle15 {
 	
 	public static class PuzzleSearch{
@@ -103,7 +104,7 @@ public class Puzzle15 {
  * 
  * Search Methods
  * 
- * 		map
+ * 		
  ******************************************************/
 
 		/**
@@ -136,37 +137,10 @@ public class Puzzle15 {
 					 break;
 				 }
 				 
-				 //Down
-				 if(state.i+1 < 4 && state.last != 'D'){		
-					 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
-					 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));	
-					 newState.path.add(newMap);
-					 queue.add(newState);
-				 }
-			
-				 //Left
-				 if(state.j-1 >= 0 && state.last != 'L'){	
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j - 1);
-					 newState = new State(newMap, state.i, state.j - 1, 'R', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 queue.add(newState);
-				 }
-			
-				 //Right
-				 if(state.j + 1 < 4 && state.last != 'R'){
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
-					 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 queue.add(newState);
-				 }
-				 				 
-				 //Up
-				 if(state.i - 1 >= 0 && state.last != 'U'){
-					 newMap = swap(state.map, state.i, state.j, state.i - 1, state.j);
-					 newState = new State(newMap, state.i - 1, state.j, 'D', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 queue.add(newState);
-				 }
+				 LinkedList<State>neighbors= neighborsFunction(state);
+				 for (State s : neighbors) {
+					queue.add(s);
+				 }		
 			 }
 		}
 	
@@ -210,38 +184,10 @@ public class Puzzle15 {
 					 continue;
 				 }
 				 
-				 //Down
-				 if(state.i + 1 < 4 && state.last != 'D'){
-					 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
-					 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 stack.add(newState);					 
-
-				 }
-				 
-				 //Left
-				 if(state.j - 1 >= 0 && state.last != 'L'){	
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j - 1);
-					 newState = new State(newMap, state.i, state.j - 1, 'R', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 stack.add(newState);
-				 }
-				 
-				 //Right
-				 if(state.j + 1 < 4 && state.last != 'R'){
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
-					 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 stack.add(newState);
-				 }
-				 
-				 //Up
-				 if(state.i - 1 >= 0 && state.last != 'U'){
-					 newMap = swap(state.map, state.i, state.j, state.i - 1, state.j);
-					 newState = new State(newMap, state.i - 1, state.j, 'D', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 stack.add(newState);
-				 }				 
+				 LinkedList<State>neighbors= neighborsFunction(state);
+				 for (State s : neighbors) {
+					stack.add(s);
+				 }					 
 			 }
 			 return false;
 		}
@@ -389,6 +335,52 @@ public class Puzzle15 {
 			System.out.println("FRACASO");
 			return false;
 		}
+		
+		
+		/**
+		 * Movement of the tiles
+		 * @param state to analyze and make the moves
+		 * @return A list with all the required movements
+		 */
+		public static LinkedList<State> neighborsFunction(State state){
+			LinkedList<State>neighbors= new LinkedList<State>();
+			int[][] newMap;
+			State newState;
+			//Down
+			 if(state.i+1 < 3 && state.last != 'D'){			 
+				 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
+				 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));	
+				 newState.path.add(newMap);
+				 neighbors.add(newState);
+			 }
+		
+			 //Left
+			 if(state.j-1 >= 0 && state.last != 'L'){	
+				 newMap = swap(state.map, state.i, state.j, state.i, state.j - 1);
+				 newState = new State(newMap, state.i, state.j - 1, 'R', new LinkedList<int[][]>(state.path));
+				 newState.path.add(newMap);
+				 neighbors.add(newState);
+			}
+		
+			 //Right
+			 if(state.j + 1 < 3 && state.last != 'R'){
+				 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
+				 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
+				 newState.path.add(newMap);
+				 neighbors.add(newState);
+				 
+			 }
+			 				 
+			 //Up
+			 if(state.i - 1 >= 0 && state.last != 'U'){
+				 newMap = swap(state.map, state.i, state.j, state.i - 1, state.j);
+				 newState = new State(newMap, state.i - 1, state.j, 'D', new LinkedList<int[][]>(state.path));
+				 newState.path.add(newMap);
+				 neighbors.add(newState);
+			 }
+			
+			return neighbors;
+		}
 
 /*******************************************************
  * 
@@ -443,10 +435,12 @@ public class Puzzle15 {
 			return manhattan;
 		}
 		
+		
 		/**
 		 * 
-		 * Returns the value of the respective heuristic
-		 * 
+		 * @param h1 If the fuction should take heuristic 1 or 2
+		 * @param state map to analyze
+		 * @return The result of the respective heuristic
 		 */
 		public static int heur(boolean h1, int[][] state) {
 			if (h1) {
@@ -510,7 +504,7 @@ public class Puzzle15 {
 		 * @param j2 y coordinate of the second number
 		 * @return A new state
 		 */
-		public int[][] swap(int[][] state, int i1, int j1, int i2, int j2){
+		public static int[][] swap(int[][] state, int i1, int j1, int i2, int j2){
 			int[][] newState = copyState(state);
 			newState[i2][j2] = state[i1][j1];
 			newState[i1][j1] = state[i2][j2]; 
