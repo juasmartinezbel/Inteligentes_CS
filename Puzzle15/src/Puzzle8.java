@@ -12,6 +12,7 @@ import java.util.Stack;
 
 
 
+
 public class Puzzle8 {
 	
 	public static class PuzzleSearch{
@@ -47,7 +48,6 @@ public class Puzzle8 {
 			public int f = Integer.MAX_VALUE;
 			public int g = Integer.MAX_VALUE;
 			public int h = Integer.MAX_VALUE;
-			public int steps = Integer.MAX_VALUE;
 			public State(int[][] _map, int _i, int _j, char lastIn, Queue<int[][]> _path) {
 				// TODO Auto-generated constructor stub
 				map = _map;
@@ -76,10 +76,10 @@ public class Puzzle8 {
 
 		    @Override
 		    public int compare(State x, State y) {
-		        if (x.steps < y.steps) {
+		        if (x.path.size()-1 < y.path.size()-1) {
 		            return -1;
 		        }
-		        if (x.steps > y.steps) {
+		        if (x.path.size()-1 > y.path.size()-1) {
 		            return 1;
 		        }
 		        return 0;
@@ -92,7 +92,7 @@ public class Puzzle8 {
 		 * Initializes the problem.
 		 * The problem can be: 
 		 * 			-A personal set
-		 * 			-A random generated one [Uncomment line 63]
+		 * 			-A random generated one [Uncomment line 104]
 		 * 
 		 */
 		public PuzzleSearch() {
@@ -100,6 +100,9 @@ public class Puzzle8 {
 					{7, 2, 4},
 					{5, 0, 6},
 					{8, 3, 1}
+					/*{1, 2, 3},
+					{4, 5, 6},
+					{7, 0, 8}*/
 					
 			};
 			//my_in_Puzzle=randomize();
@@ -148,7 +151,11 @@ public class Puzzle8 {
 				 }
 				 
 				 LinkedList<State>neighbors= neighborsFunction(state);
-				 for (State s : neighbors) {
+				 for (State s: neighbors) {
+					 if (mapId(s.map).equals(mapId(End_puzzle))) {
+						 queue.add(s);
+						 break;
+					 }
 					queue.add(s);
 				}
 			 }
@@ -193,6 +200,10 @@ public class Puzzle8 {
 				 }
 				 LinkedList<State>neighbors= neighborsFunction(state);
 				 for (State s : neighbors) {
+					 if (mapId(s.map).equals(mapId(End_puzzle))) {
+						 stack.add(s);
+						 break;
+					 }
 					stack.add(s);
 				 }				 
 			 }
@@ -210,7 +221,7 @@ public class Puzzle8 {
 			}
 		}
 		
-		
+
 		/**
 		 * 
 		 * A* Search
@@ -273,6 +284,11 @@ public class Puzzle8 {
 				 for (State s : neighbors) {
 					 int[][] neigMap=s.map;
 					 stateId=mapId(neigMap);
+					 if (stateId.equals(mapId(End_puzzle))) {
+						 s.f=0;
+						 queue.add(s);
+						 break;
+					 }
 					 if (visited.contains(stateId)) continue;
 					 
 					 s.g = state.g + 1;
@@ -324,10 +340,7 @@ public class Puzzle8 {
 				//System.out.println(currentMap);
 				visited.add(currentMap);
 				finish = equals(state.map, End_puzzle);
-				System.out.println(currentMap);
 				if(finish){
-					printPath(state.path);
-					print(state.map);
 				System.out.println(
 							"Uniform Cost: " + 
 				 			"Steps: " + (state.path.size() - 1) + " " +
@@ -339,16 +352,21 @@ public class Puzzle8 {
 				 String stateId="";
 				 
 				 for (State s : neighbors) {
+					 
 					 int[][] neigMap=s.map;
 					 stateId=mapId(neigMap);
+					 if (stateId.equals(mapId(End_puzzle))) {
+						 queue.add(s);
+						 break;
+					 }
+					 
 					 if (visited.contains(stateId)) continue;
 					 
-					 s.steps=state.g+1;
-					 s.g=state.g+1;
+					 
 				 	 boolean is_in=false;
 				 	 for (State is : queue) {
 						if(mapId(is.map).equals(stateId)) {
-							if(is.steps<s.steps)
+							if(is.path.size()-1<s.path.size()-1)
 								is_in=true;
 							else
 								queue.remove(is);
@@ -622,9 +640,9 @@ public class Puzzle8 {
 
 		// TODO Auto-generated method stub
 		PuzzleSearch puzzle = new PuzzleSearch();
-		puzzle.BFS();
-		puzzle.DFS(22);
-		puzzle.iDFS();
+		//puzzle.BFS();
+		//puzzle.DFS(22);
+		//puzzle.iDFS();
 		puzzle.AStar();
 		//puzzle.Uniform();
 	}

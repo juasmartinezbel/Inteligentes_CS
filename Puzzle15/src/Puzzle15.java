@@ -12,6 +12,7 @@ import java.util.Stack;
 
 
 
+
 public class Puzzle15 {
 	
 	public static class PuzzleSearch{
@@ -48,6 +49,8 @@ public class Puzzle15 {
 			public char last;
 			public Queue<int[][]> path;
 			public int f = Integer.MAX_VALUE;
+			public int g = Integer.MAX_VALUE;
+			public int h = Integer.MAX_VALUE;
 			public State(int[][] _map, int _i, int _j, char lastIn, Queue<int[][]> _path) {
 				// TODO Auto-generated constructor stub
 				map = _map;
@@ -72,12 +75,26 @@ public class Puzzle15 {
 		        return 0;
 		    }
 		}
+		public class StepsComparer implements Comparator<State> {
+
+		    @Override
+		    public int compare(State x, State y) {
+		        if (x.path.size()-1 < y.path.size()-1) {
+		            return -1;
+		        }
+		        if (x.path.size()-1 > y.path.size()-1) {
+		            return 1;
+		        }
+		        return 0;
+		    }
+		}
+
 		
 		/**
 		 * 
 		 * Initializes the problem.
 		 * 			-A personal set
-		 * 			-A random generated one [Uncomment line 64]
+		 * 			-A random generated one [Uncomment line 94]
 		 * 
 		 */
 		public PuzzleSearch() {
@@ -90,8 +107,6 @@ public class Puzzle15 {
 					{4, 9, 5, 7},
 					{8, 13, 11, 15},
 					{ 12, 14, 0, 10}*/
-					
-					
 			};
 			//my_in_Puzzle=randomize();
 			In_puzzle=my_in_Puzzle;
@@ -139,6 +154,10 @@ public class Puzzle15 {
 				 
 				 LinkedList<State>neighbors= neighborsFunction(state);
 				 for (State s : neighbors) {
+					 if (mapId(s.map).equals(mapId(End_puzzle))) {
+						 queue.add(s);
+						 break;
+					 }
 					queue.add(s);
 				 }		
 			 }
@@ -186,6 +205,10 @@ public class Puzzle15 {
 				 
 				 LinkedList<State>neighbors= neighborsFunction(state);
 				 for (State s : neighbors) {
+					 if (mapId(s.map).equals(mapId(End_puzzle))) {
+						 stack.add(s);
+						 break;
+					 }
 					stack.add(s);
 				 }					 
 			 }
@@ -209,6 +232,7 @@ public class Puzzle15 {
 		 * A* Search
 		 * 
 		 */
+
 		public boolean AStar() {
 			boolean h1;
 			int heuristic;
@@ -221,9 +245,9 @@ public class Puzzle15 {
 				h1=true;
 				heuristic=heu1;
 			}
+			
 			Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			path.add(In_puzzle);
-			
 			StateComparer comparer = new StateComparer();
 			Queue<State> queue = new  PriorityQueue<State>(10, comparer); 
 			
@@ -231,13 +255,11 @@ public class Puzzle15 {
 			queue.add(state);
 			
 			String startid=mapId(In_puzzle);
-			Hashtable<String, Integer> f = new Hashtable<String, Integer>();
-			f.put(startid, heuristic);
 			state.f=0;
+			state.g=0;
+			state.h=heuristic;
 			
-			Hashtable<String, Integer> g = new Hashtable<String, Integer>();
-			g.put(startid, 0);
-			LinkedList<String> visited = new LinkedList<String>();
+			LinkedList <String> visited = new LinkedList<String>();
 			
 			
 			String last = " ";
@@ -246,66 +268,125 @@ public class Puzzle15 {
 			int c = 0;
 			int maxQueue=0;
 			boolean finish = false;
-			
+			 
 			while(!queue.isEmpty()){
 				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
-				state = queue.remove();
+				state = queue.poll();
 				String currentMap=mapId((state.map));
-				
+				//System.out.println(currentMap);
 				visited.add(currentMap);
 				finish = equals(state.map, End_puzzle);
-				
 				if(finish){
-					System.out.println(
-								"A*: " + 
-					 			"Steps: " + (state.path.size() - 1) + " " +
-					 			"MaxQueue: " + maxQueue);
+				System.out.println(
+							"A*: " + 
+				 			"Steps: " + (state.path.size() - 1) + " " +
+				 			"MaxQueue: " + maxQueue);
 					return true;
 				}
 				
 				LinkedList<State>neighbors= neighborsFunction(state);
-			
 				 String stateId="";
 				 
 				 for (State s : neighbors) {
 					 int[][] neigMap=s.map;
 					 stateId=mapId(neigMap);
-					 if(visited.contains(stateId)) {
-						 continue;
+					 if (stateId.equals(mapId(End_puzzle))) {
+						 s.f=0;
+						 queue.add(s);
+						 break;
 					 }
-					 //print(s.map);
+					 if (visited.contains(stateId)) continue;
 					 
-					
-					 boolean add=false;
-					 for (State is : queue) {
-						if (mapId(is.map).equals(stateId)) {
-							add=true;
+					 s.g = state.g + 1;
+					 s.h = heur(h1, s.map);
+				 	 s.f = s.g+s.h;
+				 	 boolean is_in=false;
+				 	 for (State is : queue) {
+						if(mapId(is.map).equals(stateId)) {
+							if(is.f<s.f)
+								is_in=true;
+							else
+								queue.remove(is);
 							break;
 						}
-					 }
-					 if(!add) {
-						 queue.add(s);
-					 }
-					 
-					 int tentative_g = g.get(currentMap)+1;
-					 if(g.containsKey(stateId)) {
-						 if(g.get(stateId)<=tentative_g) continue;
-					 }
-					 g.put(stateId, tentative_g);
-					 
-					 
-					 int fPoints=g.get(stateId)+heur(h1, s.map);
-					 f.put(stateId, fPoints);
-					 s.f=fPoints;
-					 queue.add(s);
-				}
+				 	 }
+				 	 if(is_in) continue;
+				 	 queue.add(s);
+				 }
 				
 			}
 			System.out.println("FRACASO");
 			return false;
 		}
 		
-		
+		public void Uniform() {
+			Queue<int[][]> path = new  LinkedList<int[][]>(); 
+			 path.add(In_puzzle);
+			
+			 StepsComparer comparer = new StepsComparer();
+			 Queue<State> queue = new  PriorityQueue<State>(10, comparer); 
+			 State state = new State(In_puzzle, xTile, yTile, ' ', path);
+			 state.g=0;
+			 queue.add(state);
+			 
+			 String last = "";
+			 
+			 State newState;
+			 LinkedList <String> visited = new LinkedList<String>();
+			 
+			 int maxQueue = 0;
+			 int[][] newMap;
+			 String id="0";
+			 boolean finish=false;
+			 while(!queue.isEmpty()){
+				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
+				state = queue.poll();
+				String currentMap=mapId((state.map));
+				//System.out.println(currentMap);
+				visited.add(currentMap);
+				finish = equals(state.map, End_puzzle);
+				if(finish){
+				System.out.println(
+							"Uniform Cost: " + 
+				 			"Steps: " + (state.path.size() - 1) + " " +
+				 			"MaxQueue: " + maxQueue);
+					break;
+				}
+				 LinkedList<State>neighbors= neighborsFunction(state);
+				
+				 String stateId="";
+				 
+				 for (State s : neighbors) {
+					 
+					 int[][] neigMap=s.map;
+					 stateId=mapId(neigMap);
+					 if (stateId.equals(mapId(End_puzzle))) {
+						 queue.add(s);
+						 break;
+					 }
+					 
+					 if (visited.contains(stateId)) continue;
+					 
+					 
+				 	 boolean is_in=false;
+				 	 for (State is : queue) {
+						if(mapId(is.map).equals(stateId)) {
+							if(is.path.size()-1<s.path.size()-1)
+								is_in=true;
+							else
+								queue.remove(is);
+							break;
+						}
+				 	 }
+				 	 
+				 	 if(is_in) continue;
+				 	 
+				 	 queue.add(s);
+				 }
+					
+			 }
+			
+		}
 		/**
 		 * Movement of the tiles
 		 * @param state to analyze and make the moves
@@ -568,11 +649,10 @@ public class Puzzle15 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		PuzzleSearch puzzle = new PuzzleSearch();
-		puzzle.BFS();
-		puzzle.DFS(20);
-		puzzle.iDFS();
+		//puzzle.BFS();
+		//puzzle.DFS(20);
+		//puzzle.iDFS();
 		puzzle.AStar();
-		
 	}
 
 }
