@@ -18,7 +18,7 @@ public class Puzzle15 {
 				{9, 10, 11, 12},
 				{13, 14, 15, 0}
 		};
-		public static int[][] End_puzzle2 = {
+		public static int[][] End_puzzle2={
 				{0, 1, 2, 3},
 				{4, 5, 6, 7},
 				{8, 9, 10, 11},
@@ -56,17 +56,18 @@ public class Puzzle15 {
 		 * 
 		 * Initializes the problem.
 		 * 			-A personal set
-		 * 			-A random generated one [Uncomment line 70]
+		 * 			-A random generated one [Uncomment line 71]
 		 * 
 		 */
 		public PuzzleSearch() {
 			int [][] my_in_Puzzle={
-					{4, 1, 2, 0},
-					{8, 5, 6, 3},
-					{12, 9, 10, 7},
-					{13, 14, 15, 11}
+					{5, 2, 0, 3},
+					{6, 1, 7, 4},
+					{9, 13, 11, 8},
+					{ 14, 10, 15, 12}
 					
 			};
+			End_puzzle2=End_puzzle;
 			//my_in_Puzzle=randomize();
 			In_puzzle=my_in_Puzzle;
 			getTiles();
@@ -215,6 +216,16 @@ public class Puzzle15 {
 			 return false;
 		}
 		
+		/**
+		 * Iterative Depth First Search
+		 */
+		public void iDFS(){
+			int i = 0;
+			while(!DFS(i)){
+				System.out.println("Trying level "+i+"...");
+				i++;
+			}
+		}
 		
 		/**
 		 * Makes a copy of the current map
@@ -337,8 +348,8 @@ public class Puzzle15 {
 		// TODO Auto-generated method stub
 		PuzzleSearch puzzle = new PuzzleSearch();
 		puzzle.BFS();
-		puzzle.DFS(10);
-
+		puzzle.DFS(20);
+		puzzle.iDFS();
 	}
 
 }

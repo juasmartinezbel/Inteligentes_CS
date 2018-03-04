@@ -161,7 +161,6 @@ public class Puzzle8 {
 			
 				 state = stack.pop();
 				 finish = equals(state.map, End_puzzle);
-				 print(state.map);
 				 if(finish){
 					 System.out.println("DFS: " + 
 					 			"Steps: " + (state.path.size() - 1) + " " +
@@ -209,6 +208,16 @@ public class Puzzle8 {
 			 return false;
 		}
 		
+		/**
+		 * Iterative Depth First Search
+		 */
+		public void iDFS(){
+			int i = 0;
+			while(!DFS(i)){
+				System.out.println("Trying level "+i+"...");
+				i++;
+			}
+		}
 		
 		/**
 		 * Makes a copy of the current map
@@ -331,8 +340,8 @@ public class Puzzle8 {
 		// TODO Auto-generated method stub
 		PuzzleSearch puzzle = new PuzzleSearch();
 		puzzle.BFS();
-		puzzle.DFS(10);
-
+		puzzle.DFS(22);
+		puzzle.iDFS();
 	}
 
 }
