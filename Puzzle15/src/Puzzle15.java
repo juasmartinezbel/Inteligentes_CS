@@ -316,7 +316,7 @@ public class Puzzle15 {
 			int[][] newMap;
 			State newState;
 			//Down
-			 if(state.i+1 < 3 && state.last != 'D'){			 
+			 if(state.i+1 < 4 && state.last != 'D'){			 
 				 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
 				 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));	
 				 newState.path.add(newMap);
@@ -332,7 +332,7 @@ public class Puzzle15 {
 			}
 		
 			 //Right
-			 if(state.j + 1 < 3 && state.last != 'R'){
+			 if(state.j + 1 < 4 && state.last != 'R'){
 				 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
 				 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
 				 newState.path.add(newMap);
