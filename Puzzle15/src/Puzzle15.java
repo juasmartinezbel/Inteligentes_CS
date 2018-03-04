@@ -263,39 +263,8 @@ public class Puzzle15 {
 					return true;
 				}
 				
-				LinkedList<State>neighbors= new LinkedList<State>();
-				//Down
-				 if(state.i+1 < 4 && state.last != 'D'){			 
-					 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
-					 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));	
-					 newState.path.add(newMap);
-					 neighbors.add(newState);
-				 }
+				LinkedList<State>neighbors= neighborsFunction(state);
 			
-				 //Left
-				 if(state.j-1 >= 0 && state.last != 'L'){	
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j - 1);
-					 newState = new State(newMap, state.i, state.j - 1, 'R', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 neighbors.add(newState);
-				}
-			
-				 //Right
-				 if(state.j + 1 < 4 && state.last != 'R'){
-					 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
-					 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 neighbors.add(newState);
-					 
-				 }
-				 				 
-				 //Up
-				 if(state.i - 1 >= 0 && state.last != 'U'){
-					 newMap = swap(state.map, state.i, state.j, state.i - 1, state.j);
-					 newState = new State(newMap, state.i - 1, state.j, 'D', new LinkedList<int[][]>(state.path));
-					 newState.path.add(newMap);
-					 neighbors.add(newState);
-				 }
 				 String stateId="";
 				 
 				 for (State s : neighbors) {
