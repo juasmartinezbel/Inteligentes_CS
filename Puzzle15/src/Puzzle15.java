@@ -90,7 +90,7 @@ public class Puzzle15 {
 				 maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
 				 state = queue.poll();
 				 
-				 if(equals(state.map, End_puzzle)||equals(state.map, End_puzzle2)){
+				 if(equals(state.map, End_puzzle)){
 					 //printPath(path);
 					 //print(state.map);
 					 System.out.println("BFS: "  +
@@ -161,7 +161,7 @@ public class Puzzle15 {
 			
 				 state = stack.pop();
 				 
-				 finish = equals(state.map, End_puzzle)||equals(state.map, End_puzzle2);				 
+				 finish = equals(state.map, End_puzzle);				 
 				 if(finish){
 					 System.out.println("DFS: " + 
 					 			"Steps: " + (state.path.size() - 1) + " " +
