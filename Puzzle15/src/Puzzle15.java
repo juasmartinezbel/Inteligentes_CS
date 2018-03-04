@@ -214,9 +214,10 @@ public class Puzzle15 {
 		 */
 		public void iDFS(){
 			int i = 0;
+			System.out.println("Trying level "+i+"...");
 			while(!DFS(i)){
-				System.out.println("Trying level "+i+"...");
 				i++;
+				System.out.println("Trying level "+i+"...");
 			}
 		}
 		
