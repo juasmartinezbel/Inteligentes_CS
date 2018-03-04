@@ -18,12 +18,6 @@ public class Puzzle15 {
 				{9, 10, 11, 12},
 				{13, 14, 15, 0}
 		};
-		public static int[][] End_puzzle2={
-				{0, 1, 2, 3},
-				{4, 5, 6, 7},
-				{8, 9, 10, 11},
-				{12, 13, 14, 15}
-		};
 
 		
 		/**
@@ -56,7 +50,7 @@ public class Puzzle15 {
 		 * 
 		 * Initializes the problem.
 		 * 			-A personal set
-		 * 			-A random generated one [Uncomment line 71]
+		 * 			-A random generated one [Uncomment line 64]
 		 * 
 		 */
 		public PuzzleSearch() {
@@ -67,7 +61,6 @@ public class Puzzle15 {
 					{ 14, 10, 15, 12}
 					
 			};
-			End_puzzle2=End_puzzle;
 			//my_in_Puzzle=randomize();
 			In_puzzle=my_in_Puzzle;
 			getTiles();
