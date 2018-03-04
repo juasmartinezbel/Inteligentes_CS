@@ -1,7 +1,12 @@
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Stack;
 
 
@@ -12,11 +17,17 @@ public class Puzzle15 {
 		public static int xTile;
 		public static int yTile;
 		public static int[][] In_puzzle= new int[4][4];
+		
+		
 		public static int[][] End_puzzle = {
 				{1, 2, 3, 4},
 				{5, 6, 7, 8},
 				{9, 10, 11, 12},
 				{13, 14, 15, 0}
+				/*{0, 1, 2, 3},
+  				{4, 5, 6, 7},
+  				{8, 9, 10, 11},
+  				{12, 13, 14, 15}*/
 		};
 
 		
@@ -29,13 +40,13 @@ public class Puzzle15 {
 		 * @params path: The current path the puzzle has taken.
 		 * 
 		 */
-		public static class State{
+		public static class State {
 			public int[][] map;
 			public int i;
 			public int j;
 			public char last;
 			public Queue<int[][]> path;
-			
+			public int f = Integer.MAX_VALUE;
 			public State(int[][] _map, int _i, int _j, char lastIn, Queue<int[][]> _path) {
 				// TODO Auto-generated constructor stub
 				map = _map;
@@ -44,6 +55,21 @@ public class Puzzle15 {
 				last = lastIn;
 				path = _path;
 			}
+			
+		}
+		
+		public class StateComparer implements Comparator<State> {
+
+		    @Override
+		    public int compare(State x, State y) {
+		        if (x.f < y.f) {
+		            return -1;
+		        }
+		        if (x.f > y.f) {
+		            return 1;
+		        }
+		        return 0;
+		    }
 		}
 		
 		/**
@@ -59,6 +85,11 @@ public class Puzzle15 {
 					{6, 1, 7, 4},
 					{9, 13, 11, 8},
 					{ 14, 10, 15, 12}
+					/*{1, 2, 6, 3},
+					{4, 9, 5, 7},
+					{8, 13, 11, 15},
+					{ 12, 14, 0, 10}*/
+					
 					
 			};
 			//my_in_Puzzle=randomize();
@@ -67,7 +98,13 @@ public class Puzzle15 {
 			
 		}
 
-				
+/*****************************************************
+ * 
+ * 
+ * Search Methods
+ * 
+ * 		map
+ ******************************************************/
 
 		/**
 		 * Breadth First Search Tree for the puzzle
@@ -214,11 +251,238 @@ public class Puzzle15 {
 		 */
 		public void iDFS(){
 			int i = 0;
-			System.out.println("Trying level "+i+"...");
+			System.out.print("Iterative ");
 			while(!DFS(i)){
 				i++;
-				System.out.println("Trying level "+i+"...");
 			}
+		}
+		
+		
+		/**
+		 * 
+		 * A* Search
+		 * 
+		 */
+		public boolean AStar() {
+			boolean h1;
+			int heuristic;
+			int heu1=heuristic_1(In_puzzle);
+			int heu2=heuristic_2(In_puzzle);
+			if (heu1<=heu2) {
+				h1=false;
+				heuristic=heu2;
+			}else {
+				h1=true;
+				heuristic=heu1;
+			}
+			Queue<int[][]> path = new  LinkedList<int[][]>(); 
+			path.add(In_puzzle);
+			
+			StateComparer comparer = new StateComparer();
+			Queue<State> queue = new  PriorityQueue<State>(10, comparer); 
+			
+			State state = new State(In_puzzle, xTile, yTile, ' ', path);
+			queue.add(state);
+			
+			String startid=mapId(In_puzzle);
+			Hashtable<String, Integer> f = new Hashtable<String, Integer>();
+			f.put(startid, heuristic);
+			state.f=0;
+			
+			Hashtable<String, Integer> g = new Hashtable<String, Integer>();
+			g.put(startid, 0);
+			LinkedList<String> visited = new LinkedList<String>();
+			
+			
+			String last = " ";
+			State newState;
+			int[][] newMap;
+			int c = 0;
+			int maxQueue=0;
+			boolean finish = false;
+			
+			while(!queue.isEmpty()){
+				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
+				state = queue.remove();
+				String currentMap=mapId((state.map));
+				
+				visited.add(currentMap);
+				finish = equals(state.map, End_puzzle);
+				
+				if(finish){
+					System.out.println(
+								"A*: " + 
+					 			"Steps: " + (state.path.size() - 1) + " " +
+					 			"MaxQueue: " + maxQueue);
+					return true;
+				}
+				
+				LinkedList<State>neighbors= new LinkedList<State>();
+				//Down
+				 if(state.i+1 < 4 && state.last != 'D'){			 
+					 newMap = swap(state.map, state.i, state.j, state.i + 1, state.j);
+					 newState = new State(newMap, state.i + 1, state.j, 'U', new LinkedList<int[][]>(state.path));	
+					 newState.path.add(newMap);
+					 neighbors.add(newState);
+				 }
+			
+				 //Left
+				 if(state.j-1 >= 0 && state.last != 'L'){	
+					 newMap = swap(state.map, state.i, state.j, state.i, state.j - 1);
+					 newState = new State(newMap, state.i, state.j - 1, 'R', new LinkedList<int[][]>(state.path));
+					 newState.path.add(newMap);
+					 neighbors.add(newState);
+				}
+			
+				 //Right
+				 if(state.j + 1 < 4 && state.last != 'R'){
+					 newMap = swap(state.map, state.i, state.j, state.i, state.j + 1);
+					 newState = new State(newMap, state.i, state.j + 1, 'L', new LinkedList<int[][]>(state.path));
+					 newState.path.add(newMap);
+					 neighbors.add(newState);
+					 
+				 }
+				 				 
+				 //Up
+				 if(state.i - 1 >= 0 && state.last != 'U'){
+					 newMap = swap(state.map, state.i, state.j, state.i - 1, state.j);
+					 newState = new State(newMap, state.i - 1, state.j, 'D', new LinkedList<int[][]>(state.path));
+					 newState.path.add(newMap);
+					 neighbors.add(newState);
+				 }
+				 String stateId="";
+				 
+				 for (State s : neighbors) {
+					 int[][] neigMap=s.map;
+					 stateId=mapId(neigMap);
+					 if(visited.contains(stateId)) {
+						 continue;
+					 }
+					 //print(s.map);
+					 
+					
+					 boolean add=false;
+					 for (State is : queue) {
+						if (mapId(is.map).equals(stateId)) {
+							add=true;
+							break;
+						}
+					 }
+					 if(!add) {
+						 queue.add(s);
+					 }
+					 
+					 int tentative_g = g.get(currentMap)+1;
+					 if(g.containsKey(stateId)) {
+						 if(g.get(stateId)<=tentative_g) continue;
+					 }
+					 g.put(stateId, tentative_g);
+					 
+					 
+					 int fPoints=g.get(stateId)+heur(h1, s.map);
+					 f.put(stateId, fPoints);
+					 s.f=fPoints;
+					 queue.add(s);
+				}
+				
+			}
+			System.out.println("FRACASO");
+			return false;
+		}
+
+/*******************************************************
+ * 
+ * 
+ * 
+ * Heuristics
+ * 
+ * 
+ ******************************************************/
+		/**
+		 * 
+		 * This heuristic returns the number of misplaced tiles
+		 * 
+		 * @param state
+		 */
+		public static int heuristic_1(int[][] state) {
+			int misplaced=-1; //It will count the empty tile, so we discount it at once
+			for(int i = 0; i < 4; i++){
+				for(int j = 0; j < 4; j++){
+					if(state[i][j]!=End_puzzle[i][j]){
+						misplaced++;
+					}
+				}
+			}
+			return misplaced;
+		}
+		
+		/**
+		 * 
+		 * This heuristic returns the Manhattan distance
+		 * (i.e., no. of squares from desired location of each tile)
+		 * 
+		 * @param state
+		 */
+		public static int heuristic_2(int[][]state) {
+			int manhattan=0;
+			
+			for(int i = 0; i < 4; i++){
+				for(int j = 0; j < 4; j++){
+					int tile=state[i][j];
+					if(tile!=End_puzzle[i][j]){
+						if(tile!=0){
+							int yDistance= Math.abs(i-(tile-1)/4);
+							int xDistance= Math.abs(j-(tile-1)%4);
+							manhattan+=(yDistance+xDistance);
+						}
+					}
+				}
+			}
+			
+			
+			return manhattan;
+		}
+		
+		/**
+		 * 
+		 * Returns the value of the respective heuristic
+		 * 
+		 */
+		public static int heur(boolean h1, int[][] state) {
+			if (h1) {
+				return heuristic_1(state);
+			}else {
+				return heuristic_2(state);
+			}
+		}
+		
+/*****************************************************
+ * 
+ * 
+ * 
+ * Other Functions
+ * 
+ * 
+ ******************************************************/
+		
+		/**
+		 * Returns a String that represents an unique set of a hash
+		 * @param state
+		 * @return
+		 */
+		public String mapId(int[][] state){
+			String hashValue = "";
+			String tmp ="";
+			for(int i = 0; i < 4; i++){
+				for(int j = 0; j < 4; j++){
+					Integer tmps = state[i][j];
+					tmp = tmps.toString();
+					if(tmp.length()==1)
+						tmp="0"+tmp;
+					hashValue += tmp;
+				}
+			}
+			return hashValue;
 		}
 		
 		/**
@@ -344,6 +608,8 @@ public class Puzzle15 {
 		puzzle.BFS();
 		puzzle.DFS(20);
 		puzzle.iDFS();
+		puzzle.AStar();
+		
 	}
 
 }
