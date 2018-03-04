@@ -1,8 +1,4 @@
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -129,12 +125,7 @@ public class Puzzle8 {
 			 State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			 queue.add(state);
 			 
-			 Hashtable<String, State> visited = new Hashtable<String, State>();
-			 String last = "";
-			 State newState;
 			 int maxQueue = 0;
-			 int[][] newMap;
-			 String id="0";
 			 
 			 while(!queue.isEmpty()){	
 				 										//If true	 if false
@@ -176,9 +167,6 @@ public class Puzzle8 {
 			 State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			 stack.add(state);
 			 			 
-			 String last = " ";
-			 State newState;
-			 int[][] newMap;
 			 int maxStack = 0;
 			 boolean finish = false;
 			 
@@ -248,18 +236,12 @@ public class Puzzle8 {
 			State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			queue.add(state);
 			
-			String startid=mapId(In_puzzle);
 			state.f=0;
 			state.g=0;
 			state.h=heuristic;
 			
 			LinkedList <String> visited = new LinkedList<String>();
 			
-			
-			String last = " ";
-			State newState;
-			int[][] newMap;
-			int c = 0;
 			int maxQueue=0;
 			boolean finish = false;
 			 
@@ -313,32 +295,27 @@ public class Puzzle8 {
 			return false;
 		}
 		
-		
+		/***
+		 * 
+		 * Uniform Search
+		 * 
+		 */
 		public void Uniform() {
 			Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			 path.add(In_puzzle);
 			
 			 StepsComparer comparer = new StepsComparer();
-			 Queue<State> queue = new  PriorityQueue<State>(10, comparer); 
+			 Queue<State> queue = new  PriorityQueue<State>(10, comparer);
 			 State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			 state.g=0;
 			 queue.add(state);
-			 
-			 String last = "";
-			 
-			 State newState;
-			 LinkedList <String> visited = new LinkedList<String>();
+
 			 
 			 int maxQueue = 0;
-			 int[][] newMap;
-			 String id="0";
 			 boolean finish=false;
 			 while(!queue.isEmpty()){
 				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
 				state = queue.poll();
-				String currentMap=mapId((state.map));
-				//System.out.println(currentMap);
-				visited.add(currentMap);
 				finish = equals(state.map, End_puzzle);
 				if(finish){
 				System.out.println(
@@ -359,23 +336,6 @@ public class Puzzle8 {
 						 queue.add(s);
 						 break;
 					 }
-					 
-					 if (visited.contains(stateId)) continue;
-					 
-					 
-				 	 boolean is_in=false;
-				 	 for (State is : queue) {
-						if(mapId(is.map).equals(stateId)) {
-							if(is.path.size()-1<s.path.size()-1)
-								is_in=true;
-							else
-								queue.remove(is);
-							break;
-						}
-				 	 }
-				 	 
-				 	 if(is_in) continue;
-				 	 
 				 	 queue.add(s);
 				 }
 					
@@ -640,11 +600,11 @@ public class Puzzle8 {
 
 		// TODO Auto-generated method stub
 		PuzzleSearch puzzle = new PuzzleSearch();
-		//puzzle.BFS();
-		//puzzle.DFS(22);
-		//puzzle.iDFS();
+		puzzle.BFS();
+		puzzle.DFS(22);
+		puzzle.iDFS();
 		puzzle.AStar();
-		//puzzle.Uniform();
+		puzzle.Uniform();
 	}
 
 }
