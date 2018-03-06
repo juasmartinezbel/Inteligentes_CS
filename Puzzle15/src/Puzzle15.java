@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -13,22 +14,38 @@ import java.util.Stack;
 public class Puzzle15 {
 	
 	public static class PuzzleSearch{
-		public static int xTile;
-		public static int yTile;
-		public static int[][] In_puzzle= new int[4][4];
-		
-		
 		public static int[][] End_puzzle = {
 				{1, 2, 3, 4},
 				{5, 6, 7, 8},
 				{9, 10, 11, 12},
 				{13, 14, 15, 0}
-				/*{0, 1, 2, 3},
-  				{4, 5, 6, 7},
-  				{8, 9, 10, 11},
-  				{12, 13, 14, 15}*/
+		};
+		public static int xTile = 3;
+		public static int yTile = 3;
+		public static int[][] In_puzzle = {
+				{1, 2, 3, 4},
+				{5, 6, 7, 8},
+				{9, 10, 11, 12},
+				{13, 14, 15, 0}
 		};
 
+		
+		/**
+		 * 
+		 * Initializes the problem.
+		 * 			-A personal set
+		 * 			-A random generated one [Uncomment line 94]
+		 * 
+		 */
+		public PuzzleSearch() {
+			
+			xTile = 3;
+			yTile = 3;		
+			fillPuzzle();			
+			randomize(15);	
+			getTiles();
+			
+		}
 		
 		/**
 		 * 
@@ -86,30 +103,6 @@ public class Puzzle15 {
 		    }
 		}
 
-		
-		/**
-		 * 
-		 * Initializes the problem.
-		 * 			-A personal set
-		 * 			-A random generated one [Uncomment line 94]
-		 * 
-		 */
-		public PuzzleSearch() {
-			int [][] my_in_Puzzle={
-					{5, 2, 0, 3},
-					{6, 1, 7, 4},
-					{9, 13, 11, 8},
-					{ 14, 10, 15, 12}
-					/*{1, 2, 6, 3},
-					{4, 9, 5, 7},
-					{8, 13, 11, 15},
-					{ 12, 14, 0, 10}*/
-			};
-			//my_in_Puzzle=randomize();
-			In_puzzle=my_in_Puzzle;
-			getTiles();
-			
-		}
 
 /*****************************************************
  * 
@@ -122,7 +115,7 @@ public class Puzzle15 {
 		/**
 		 * Breadth First Search Tree for the puzzle
 		 */
-		public void BFS(){
+		public int[] BFS(){
 			 Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			 path.add(In_puzzle);
 			
@@ -139,12 +132,11 @@ public class Puzzle15 {
 				 state = queue.poll();
 				 
 				 if(equals(state.map, End_puzzle)){
-					 //printPath(path);
-					 //print(state.map);
-					 System.out.println("BFS: "  +
-							 			"Steps: " + (state.path.size() - 1) + " " +
-							 			"MaxQueue: " + maxQueue);
-					 break;
+//					 System.out.println("BFS: " + 
+//					 			"Steps: " + (state.path.size() - 1) + " " +
+//					 			"MaxQueue: " + maxQueue);
+					 int[]stats = {state.path.size() - 1, maxQueue};
+					 return stats;
 				 }
 				 
 				 LinkedList<State>neighbors= neighborsFunction(state);
@@ -156,6 +148,8 @@ public class Puzzle15 {
 					queue.add(s);
 				 }		
 			 }
+			 
+			 return null;
 		}
 	
 		
@@ -165,7 +159,7 @@ public class Puzzle15 {
 		 * 
 		 */
 			
-		public boolean DFS(int n){
+		public int[] DFS(int n){
 			 Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			 path.add(In_puzzle);
 			
@@ -184,10 +178,11 @@ public class Puzzle15 {
 				 
 				 finish = equals(state.map, End_puzzle);				 
 				 if(finish){
-					 System.out.println("DFS: " + 
-					 			"Steps: " + (state.path.size() - 1) + " " +
-					 			"MaxQueue: " + maxStack);
-					 return true;
+//					 System.out.println("DFS: " + 
+//					 			"Steps: " + (state.path.size() - 1) + " " +
+//					 			"MaxQueue: " + maxStack);
+					 int[]stats = {state.path.size() - 1, maxStack, 0};
+					 return stats;
 				 }
 				 
 				 if(state.path.size() > n){
@@ -203,18 +198,29 @@ public class Puzzle15 {
 					stack.add(s);
 				 }					 
 			 }
-			 return false;
+			 int[]stats = {state.path.size() - 1, maxStack, 1};
+			 return stats;
 		}
 		
 		/**
 		 * Iterative Depth First Search
 		 */
-		public void iDFS(){
+		public int[] iDFS(){
 			int i = 0;
-			System.out.print("Iterative ");
-			while(!DFS(i)){
+			int[]stats = {0,0,0};
+//			System.out.print("Iterative ");
+			boolean run = true;
+			while(run){
 				i++;
+				int[] rst = DFS(i);
+				stats[0] = stats[0] + rst[0];
+				stats[1] = rst[1]>stats[1] ? rst[1]:stats[1];			
+				
+				if(rst[2] == 0) {
+					run = false;
+				}
 			}
+			return stats;
 		}
 		
 		
@@ -224,7 +230,7 @@ public class Puzzle15 {
 		 * 
 		 */
 
-		public boolean AStar() {
+		public int[] AStar() {
 			boolean h1;
 			int heuristic;
 			int heu1=heuristic_1(In_puzzle);
@@ -263,11 +269,12 @@ public class Puzzle15 {
 				finish = equals(state.map, End_puzzle);
 				if(finish){
 					//printPath(state.path);
-				System.out.println(
-							"A*: " + 
-				 			"Steps: " + (state.path.size() - 1) + " " +
-				 			"MaxQueue: " + maxQueue);
-					return true;
+//				System.out.println(
+//							"A*: " + 
+//				 			"Steps: " + (state.path.size() - 1) + " " +
+//				 			"MaxQueue: " + maxQueue);
+				int[]stats = {state.path.size() - 1, maxQueue, 0};
+				return stats;
 				}
 				
 				LinkedList<State>neighbors= neighborsFunction(state);
@@ -302,7 +309,7 @@ public class Puzzle15 {
 				
 			}
 			System.out.println("FRACASO");
-			return false;
+			return null;
 		}
 		
 		/***
@@ -310,7 +317,7 @@ public class Puzzle15 {
 		 * Uniform Search
 		 * 
 		 */
-		public void Uniform() {
+		public int[] Uniform() {
 			Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			 path.add(In_puzzle);
 			
@@ -329,11 +336,12 @@ public class Puzzle15 {
 				state = queue.poll();
 				finish = equals(state.map, End_puzzle);
 				if(finish){
-				System.out.println(
-							"Uniform Cost: " + 
-				 			"Steps: " + (state.path.size() - 1) + " " +
-				 			"MaxQueue: " + maxQueue);
-					break;
+//				System.out.println(
+//							"Uniform Cost: " + 
+//				 			"Steps: " + (state.path.size() - 1) + " " +
+//				 			"MaxQueue: " + maxQueue);
+				int[]stats = {state.path.size() - 1, maxQueue, 0};
+				return stats;
 				}
 				 LinkedList<State>neighbors= neighborsFunction(state);
 				
@@ -351,6 +359,7 @@ public class Puzzle15 {
 				 }
 					
 			 }
+			 return null;
 			
 		}
 	
@@ -587,41 +596,161 @@ public class Puzzle15 {
 			}
 		}
 		
+		/**
+		 * Fill de matrix
+		 */		
+		public static void fillPuzzle() {
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					In_puzzle[i][j] = j + i*4 + 1;
+					End_puzzle[i][j] = j + i*4 + 1;
+				}
+			}
+			In_puzzle[3][3] = 0;
+			End_puzzle[3][3] = 0;
+			
+		}
+		
+		
 		
 		/**
 		 * A function that returns a randomly generated 4x4 puzzle
 		 * @return a randomly generated matrix
 		 */
-		public static int[][] randomize(){
-			int [][] endArray=new int[4][4];
+		public void randomize(int n){
 			Random rand=new Random();
-			LinkedList <Integer> use = new LinkedList<Integer>();
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 4; j++) {
-					  int randomNum = rand.nextInt((15 - 0) + 1) ;
-					  while (use.contains(randomNum)) {
-						  randomNum = rand.nextInt((15 - 0) + 1) ;
-					  }
-					  use.add(randomNum);
-					  endArray[i][j]=randomNum;
-						  
-				}
+			boolean ok;
+			int r;
+			int x = 0;
+			int y = 0;
+			int rLast = 4;
+			for (int i = 0; i < n; i++) {
+				ok = true;
+				while(ok) {
+					r = rand.nextInt(4);
+					switch (r) {
+						case 0:	
+							if (xTile > 0 && rLast != 2) {
+								x = xTile - 1;
+								y = yTile;
+								ok = false;
+							}
+							break;
+						case 1:	
+							if (yTile > 0 && rLast != 3) {
+								x = xTile;
+								y = yTile - 1;
+								ok = false;
+							}
+							break;
+						case 2:	
+							if (xTile < 3 && rLast != 0) {
+								x = xTile + 1;
+								y = yTile;
+								ok = false;
+							}
+							break;
+						case 3:	
+							if (yTile < 3 && rLast != 1) {
+								x = xTile;
+								y = yTile + 1;
+								ok = false;
+							}
+							break;
+					}					
+				}	
+				In_puzzle[xTile][yTile] = In_puzzle[x][y];
+				In_puzzle[x][y] = 0;
+				xTile = x;
+				yTile = y;			
 			}
-			print(endArray);
-			return endArray; 
+
 		}
 		
 	}
 	
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    long factor = (long) Math.pow(10, places);
+	    value = value * factor;
+	    long tmp = Math.round(value);
+	    return (double) tmp / factor;
+	}
+	
+	public static int[] median(int[][] array, int n) {
+		int[]medians = {0, 0, 0, 0, 0};
+		for(int i = 0; i < 5; i++){
+			for(int j = 0; j < n; j++){
+				medians[i] += array[i][j];
+			}
+			medians[i] /= n;
+		}	
+		return medians;
+	}
+	
+	public static double[] desStardt(int[][] array, int[]medians, int n) {
+		double[]desStardt = {0, 0, 0, 0, 0};
+		for(int i = 0; i < 5; i++){
+			for(int j = 0; j < n; j++){
+				desStardt[i] += Math.pow(array[i][j] - medians[i], 2);
+			}
+			desStardt[i] = round(Math.sqrt(medians[i]/n),2);
+		}	
+		return desStardt;
+	}
+	
+	
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		PuzzleSearch puzzle = new PuzzleSearch();
-		puzzle.BFS();
-		puzzle.DFS(20);
-		puzzle.iDFS();
-		puzzle.AStar();
-		puzzle.Uniform();
+		int n = 30;
+		int[][]Steps = new int[5][n];
+		int[][]MaxQueue = new int[5][n];
+		int[]tmp;
+		for (int i = 0; i < n; i++) {
+			PuzzleSearch puzzle = new PuzzleSearch();
+			tmp = puzzle.BFS();
+			Steps[0][i] = tmp[0];
+			MaxQueue[0][i] = tmp[1];
+			
+			
+			tmp = puzzle.DFS(20);
+			Steps[1][i] = tmp[0];
+			MaxQueue[1][i] = tmp[1];
+			
+			tmp = puzzle.iDFS();
+			Steps[2][i] = tmp[0];
+			MaxQueue[2][i] = tmp[1];
+			
+			
+			tmp = puzzle.AStar();
+			Steps[3][i] = tmp[0];
+			MaxQueue[3][i] = tmp[1];
+			
+			
+			tmp = puzzle.Uniform();
+			Steps[4][i] = tmp[0];
+			MaxQueue[4][i] = tmp[1];
+		}
+
+		int[]medianSteps = median(Steps, n);
+		int[]medianMaxQueue = median(MaxQueue, n);
+		
+		double[] desStardtSteps = desStardt(Steps, medianSteps, n);
+		double[] desStardtMaxQueue = desStardt(MaxQueue, medianMaxQueue, n);
+		
+		System.out.println(String.format("%20s %10s %20s %10s %15s", "Algorithm", "|", "Steps", "|", "MaxMemory"));
+	    System.out.println(String.format("%s", "-----------------------------------------------------------------------------------------"));
+		
+		String[] methods = {"BFS", "DFS", "iDFS", "A*", "Uniform"};
+		for(int i = 0; i < 5; i++){
+			System.out.println(String.format("%20s %10s %20s %10s %15s", methods[i], "|", Integer.toString(medianSteps[i]) + " + " + Double.toString(desStardtSteps[i]), "|", Integer.toString(medianMaxQueue[i]) + " + " + Double.toString(desStardtMaxQueue[i])));
+		}
+		
+		
 	}
+	
+
 
 }
