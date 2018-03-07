@@ -219,6 +219,7 @@ public class Puzzle15 {
 				if(rst[2] == 0) {
 					run = false;
 				}
+				
 			}
 			return stats;
 		}
@@ -230,19 +231,7 @@ public class Puzzle15 {
 		 * 
 		 */
 
-		public int[] AStar() {
-			boolean h1;
-			int heuristic;
-			int heu1=heuristic_1(In_puzzle);
-			int heu2=heuristic_2(In_puzzle);
-			if (heu1<=heu2) {
-				h1=false;
-				heuristic=heu2;
-			}else {
-				h1=true;
-				heuristic=heu1;
-			}
-			
+		public int[] AStar(boolean h1) {
 			Queue<int[][]> path = new  LinkedList<int[][]>(); 
 			path.add(In_puzzle);
 			StateComparer comparer = new StateComparer();
@@ -250,10 +239,9 @@ public class Puzzle15 {
 			
 			State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			queue.add(state);
-
 			state.f=0;
 			state.g=0;
-			state.h=heuristic;
+			state.h=heur(h1, state.map);
 			
 			LinkedList <String> visited = new LinkedList<String>();
 
@@ -465,7 +453,7 @@ public class Puzzle15 {
 		
 		/**
 		 * 
-		 * @param h1 If the fuction should take heuristic 1 or 2
+		 * @param h1 If the function should take heuristic 1 or 2
 		 * @param state map to analyze
 		 * @return The result of the respective heuristic
 		 */
@@ -679,8 +667,8 @@ public class Puzzle15 {
 	}
 	
 	public static int[] median(int[][] array, int n) {
-		int[]medians = {0, 0, 0, 0, 0};
-		for(int i = 0; i < 5; i++){
+		int[]medians = {0, 0, 0, 0, 0, 0};
+		for(int i = 0; i < 6; i++){
 			for(int j = 0; j < n; j++){
 				medians[i] += array[i][j];
 			}
@@ -690,8 +678,8 @@ public class Puzzle15 {
 	}
 	
 	public static double[] desStardt(int[][] array, int[]medians, int n) {
-		double[]desStardt = {0, 0, 0, 0, 0};
-		for(int i = 0; i < 5; i++){
+		double[]desStardt = {0, 0, 0, 0, 0, 0};
+		for(int i = 0; i < 6; i++){
 			for(int j = 0; j < n; j++){
 				desStardt[i] += Math.pow(array[i][j] - medians[i], 2);
 			}
@@ -705,17 +693,18 @@ public class Puzzle15 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		int n = 30;
-		int[][]Steps = new int[5][n];
-		int[][]MaxQueue = new int[5][n];
+		int[][]Steps = new int[6][n];
+		int[][]MaxQueue = new int[6][n];
 		int[]tmp;
 		for (int i = 0; i < n; i++) {
 			PuzzleSearch puzzle = new PuzzleSearch();
+			//puzzle.print(puzzle.In_puzzle);
 			tmp = puzzle.BFS();
 			Steps[0][i] = tmp[0];
 			MaxQueue[0][i] = tmp[1];
 			
 			
-			tmp = puzzle.DFS(20);
+			tmp = puzzle.DFS(15);
 			Steps[1][i] = tmp[0];
 			MaxQueue[1][i] = tmp[1];
 			
@@ -724,14 +713,18 @@ public class Puzzle15 {
 			MaxQueue[2][i] = tmp[1];
 			
 			
-			tmp = puzzle.AStar();
+			tmp = puzzle.AStar(true);
 			Steps[3][i] = tmp[0];
 			MaxQueue[3][i] = tmp[1];
 			
-			
-			tmp = puzzle.Uniform();
+			tmp = puzzle.AStar(false);
 			Steps[4][i] = tmp[0];
 			MaxQueue[4][i] = tmp[1];
+			
+			
+			tmp = puzzle.Uniform();
+			Steps[5][i] = tmp[0];
+			MaxQueue[5][i] = tmp[1];
 		}
 
 		int[]medianSteps = median(Steps, n);
@@ -739,13 +732,13 @@ public class Puzzle15 {
 		
 		double[] desStardtSteps = desStardt(Steps, medianSteps, n);
 		double[] desStardtMaxQueue = desStardt(MaxQueue, medianMaxQueue, n);
-		
+		System.out.println("");
 		System.out.println(String.format("%20s %10s %20s %10s %15s", "Algorithm", "|", "Steps", "|", "MaxMemory"));
 	    System.out.println(String.format("%s", "-----------------------------------------------------------------------------------------"));
 		
-		String[] methods = {"BFS", "DFS", "iDFS", "A*", "Uniform"};
-		for(int i = 0; i < 5; i++){
-			System.out.println(String.format("%20s %10s %20s %10s %15s", methods[i], "|", Integer.toString(medianSteps[i]) + " + " + Double.toString(desStardtSteps[i]), "|", Integer.toString(medianMaxQueue[i]) + " + " + Double.toString(desStardtMaxQueue[i])));
+		String[] methods = {"BFS", "DFS", "iDFS", "A* Misplaced", "A* Manhattan", "Uniform"};
+		for(int i = 0; i < 6; i++){
+			System.out.println(String.format("%20s %10s %20s %10s %15s", methods[i], "|", Integer.toString(medianSteps[i]) + " +- " + Double.toString(desStardtSteps[i]), "|", Integer.toString(medianMaxQueue[i]) + " +- " + Double.toString(desStardtMaxQueue[i])));
 		}
 		
 		
