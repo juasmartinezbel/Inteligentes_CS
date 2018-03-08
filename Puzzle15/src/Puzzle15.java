@@ -42,7 +42,7 @@ public class Puzzle15 {
 			xTile = 3;
 			yTile = 3;		
 			fillPuzzle();			
-			randomize(15);	
+			randomize(10);	
 			getTiles();
 			
 		}
@@ -123,19 +123,19 @@ public class Puzzle15 {
 			 State state = new State(In_puzzle, xTile, yTile, ' ', path);
 			 queue.add(state);
 			 
-
+			 int nodesVisited = 0;
 			 int maxQueue = 0;
 			 
 			 while(!queue.isEmpty()){	
 				 										//If true	 if false
 				 maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
 				 state = queue.poll();
-				 
+				 nodesVisited += 1;
 				 if(equals(state.map, End_puzzle)){
 //					 System.out.println("BFS: " + 
 //					 			"Steps: " + (state.path.size() - 1) + " " +
 //					 			"MaxQueue: " + maxQueue);
-					 int[]stats = {state.path.size() - 1, maxQueue};
+					 int[]stats = {nodesVisited, maxQueue};
 					 return stats;
 				 }
 				 
@@ -169,19 +169,19 @@ public class Puzzle15 {
 			 
 			 int maxStack = 0;
 			 boolean finish = false;
-			 
+			 int nodesVisited = 0;
 			 while(!stack.isEmpty()){
 
 				 maxStack = stack.size() > maxStack ? stack.size() : maxStack;
 			
 				 state = stack.pop();
-				 
+				 nodesVisited+=1;
 				 finish = equals(state.map, End_puzzle);				 
 				 if(finish){
 //					 System.out.println("DFS: " + 
 //					 			"Steps: " + (state.path.size() - 1) + " " +
 //					 			"MaxQueue: " + maxStack);
-					 int[]stats = {state.path.size() - 1, maxStack, 0};
+					 int[]stats = {nodesVisited, maxStack, 0};
 					 return stats;
 				 }
 				 
@@ -247,10 +247,11 @@ public class Puzzle15 {
 
 			int maxQueue=0;
 			boolean finish = false;
-			 
+			int nodesVisited = 0;
 			while(!queue.isEmpty()){
 				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
 				state = queue.poll();
+				nodesVisited += 1;
 				String currentMap=mapId((state.map));
 				//System.out.println(currentMap);
 				visited.add(currentMap);
@@ -261,7 +262,7 @@ public class Puzzle15 {
 //							"A*: " + 
 //				 			"Steps: " + (state.path.size() - 1) + " " +
 //				 			"MaxQueue: " + maxQueue);
-				int[]stats = {state.path.size() - 1, maxQueue, 0};
+				int[]stats = {nodesVisited, maxQueue, 0};
 				return stats;
 				}
 				
@@ -269,6 +270,7 @@ public class Puzzle15 {
 				 String stateId="";
 				 
 				 for (State s : neighbors) {
+					 
 					 int[][] neigMap=s.map;
 					 stateId=mapId(neigMap);
 					 if (stateId.equals(mapId(End_puzzle))) {
@@ -316,19 +318,20 @@ public class Puzzle15 {
 			 queue.add(state);
 			 
 			 
-			 
+			 int nodesVisited = 1;
 			 int maxQueue = 0;
 			 boolean finish=false;
 			 while(!queue.isEmpty()){
 				maxQueue = queue.size() > maxQueue ? queue.size() : maxQueue;
 				state = queue.poll();
+				nodesVisited += 1;
 				finish = equals(state.map, End_puzzle);
 				if(finish){
 //				System.out.println(
 //							"Uniform Cost: " + 
 //				 			"Steps: " + (state.path.size() - 1) + " " +
 //				 			"MaxQueue: " + maxQueue);
-				int[]stats = {state.path.size() - 1, maxQueue, 0};
+				int[]stats = {nodesVisited, maxQueue, 0};
 				return stats;
 				}
 				 LinkedList<State>neighbors= neighborsFunction(state);
@@ -683,7 +686,7 @@ public class Puzzle15 {
 			for(int j = 0; j < n; j++){
 				desStardt[i] += Math.pow(array[i][j] - medians[i], 2);
 			}
-			desStardt[i] = round(Math.sqrt(medians[i]/n),2);
+			desStardt[i] = round(Math.sqrt(desStardt[i]/n),2);
 		}	
 		return desStardt;
 	}
@@ -702,7 +705,7 @@ public class Puzzle15 {
 			tmp = puzzle.BFS();
 			Steps[0][i] = tmp[0];
 			MaxQueue[0][i] = tmp[1];
-			
+			System.out.println();
 			
 			tmp = puzzle.DFS(15);
 			Steps[1][i] = tmp[0];
@@ -738,7 +741,7 @@ public class Puzzle15 {
 		
 		String[] methods = {"BFS", "DFS", "iDFS", "A* Misplaced", "A* Manhattan", "Uniform"};
 		for(int i = 0; i < 6; i++){
-			System.out.println(String.format("%20s %10s %20s %10s %15s", methods[i], "|", Integer.toString(medianSteps[i]) + " +- " + Double.toString(desStardtSteps[i]), "|", Integer.toString(medianMaxQueue[i]) + " +- " + Double.toString(desStardtMaxQueue[i])));
+			System.out.println(String.format("%20s %10s %20s %10s %15s", methods[i], "|", Integer.toString(medianSteps[i]) + " ± " + Double.toString(desStardtSteps[i]), "|", Integer.toString(medianMaxQueue[i]) + " +- " + Double.toString(desStardtMaxQueue[i])));
 		}
 		
 		
