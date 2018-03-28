@@ -3,6 +3,7 @@ import unalcol.agents.Agent;
 
 import unalcol.agents.examples.labyrinth.*;
 import unalcol.agents.simulate.util.*;
+import unalcol.agents.examples.labyrinth.teseo.simple.RandomReflexTeseo;
 
 public class TeseoEaterMain {
   private static SimpleLanguage getLanguage(){
@@ -14,7 +15,7 @@ public class TeseoEaterMain {
   }
 
   public static void main( String[] argv ){
-    Agent agent = new Agent( new InteractiveAgentProgram( getLanguage() ) );
+    Agent agent = new Agent( new RandomReflexTeseo( getLanguage() ) );
     TeseoEaterMainFrame frame = new TeseoEaterMainFrame( agent, getLanguage() );
     LabyrinthDrawer.DRAW_AREA_SIZE = 600;
     LabyrinthDrawer.CELL_SIZE = 40;
