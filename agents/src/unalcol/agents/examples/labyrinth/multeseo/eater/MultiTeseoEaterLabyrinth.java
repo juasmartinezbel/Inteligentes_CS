@@ -90,6 +90,7 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
 	            // @TODO: Update the perception goodness
 	            //structure[x][y] |= (1<<15);
 	            int bit_flag = (1<<10);
+	            System.out.println("Coordenadas: " + x + " " + y + " " + Integer.toString(structure[x][y],2) );
 	            if( (structure[x][y] & bit_flag) == bit_flag ){
 	              System.out.println("Eating good food...");
 	              agent_energy_level[i] = Math.min( agent_energy_level[i] + INC_ENERGY_LEVEL, MAX_ENERGY_LEVEL );

@@ -18,6 +18,7 @@ public class CS_Agent implements AgentProgram{
 
 	  public CS_Agent(   SimpleLanguage _language  ) {
 		  language = _language;
+		  
 	  }
 
 	  public void setLanguage(  SimpleLanguage _language ){
@@ -26,6 +27,7 @@ public class CS_Agent implements AgentProgram{
 
 	  public void init(){
 	    cmd.clear();
+	    
 	  }
 
 	  
@@ -51,13 +53,27 @@ public class CS_Agent implements AgentProgram{
 	          booleanValue();
 	      boolean FAIL = ( (Boolean) p.getAttribute(language.getPercept(5))).
 	              booleanValue();
+	      boolean FOOD = ( (Boolean) p.getAttribute(language.getPercept(10))).
+	              booleanValue();
+	      boolean FOOD_COLOR = ( (Boolean) p.getAttribute(language.getPercept(11))).
+	              booleanValue();
+	      boolean FOOD_SHAPE = ( (Boolean) p.getAttribute(language.getPercept(12))).
+	              booleanValue();
+	      boolean FOOD_SIZE = ( (Boolean) p.getAttribute(language.getPercept(13))).
+	              booleanValue();
+	      boolean FOOD_WEIGHT = ( (Boolean) p.getAttribute(language.getPercept(14))).
+	              booleanValue();
+	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
 
-	      int d = accion(PF, PR, PB, PL, MT, FAIL);
+
+	      int d = movement(PF, PR, PB, PL, MT, FAIL, FOOD, FOOD_COLOR, FOOD_SHAPE, FOOD_SIZE, FOOD_WEIGHT, energy);
 	      if (0 <= d && d < 4) {
 	        for (int i = 1; i <= d; i++) {
 	          cmd.add(language.getAction(3)); //rotate
 	        }
 	        cmd.add(language.getAction(2)); // advance
+	      }else if(d == 4) {
+	    	cmd.add(language.getAction(4));  //eat
 	      }else {
 	        cmd.add(language.getAction(0)); // die
 	      }
@@ -67,7 +83,7 @@ public class CS_Agent implements AgentProgram{
 	    return new Action(x);
 	  }
 	  
-	  public int accion(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL) {
+	  public int movement(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, boolean FOOD_COLOR, boolean FOOD_SHAPE, boolean FOOD_SIZE, boolean FOOD_WEIGHT, Integer energy) {
 	        if (MT) return -1;
 	        boolean flag = true;
 	        int k=0;
@@ -88,7 +104,8 @@ public class CS_Agent implements AgentProgram{
 	                    break;                    
 	            }
 	        }
-	        return k;
+	        System.out.println(FOOD + ", " + FOOD_COLOR + ", " + FOOD_SHAPE + ", " + FOOD_SIZE + ", " + FOOD_WEIGHT + ", " + energy);
+	        return 4;
 	    } 
 	  
 
