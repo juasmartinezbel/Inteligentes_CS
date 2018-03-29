@@ -12,8 +12,9 @@ public class Map {
 	}
 	
 	public String hashFunction(Integer x, Integer y) {
-		return String.format("%02d", x) + String.format("%02d", y);
+		return String.valueOf(x) +"|"+ String.valueOf(y);
 	}
+	
 	
 	public int size() {
 		return map.size();

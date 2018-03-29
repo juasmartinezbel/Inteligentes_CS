@@ -80,17 +80,19 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
 	      SimulatedAgent a = (SimulatedAgent) agent;
 	      int x = ( (Integer) a.getAttribute(X)).intValue();
 	      int y = ( (Integer) a.getAttribute(Y)).intValue();
+	      int d = ( (Integer) a.getAttribute(D)).intValue();
 	      Percept p = sense(a);
 	      String msg = null;
 	      String act = action.getCode();
 	      int actionID = Language.getIndex(available_actions,act);
+	      //if(agent.getProgram().getClass().getSimpleName().equals("Mandingas_agent")) System.out.println("Coordenadas: x=" + x + " y=" + y + " d="+d);
 	      switch (actionID) {
 	        case 4: // eat
 	          if ( ( (Boolean) p.getAttribute(LabyrinthUtil.RESOURCE[0])).booleanValue()) {
 	            // @TODO: Update the perception goodness
 	            //structure[x][y] |= (1<<15);
 	            int bit_flag = (1<<10);
-	            //System.out.println("Coordenadas: " + x + " " + y + " " + Integer.toString(structure[x][y],2) );
+	            
 	            if( (structure[x][y] & bit_flag) == bit_flag ){
 	              System.out.println("Eating good food...");
 	              agent_energy_level[i] = Math.min( agent_energy_level[i] + INC_ENERGY_LEVEL, MAX_ENERGY_LEVEL );
@@ -115,6 +117,7 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
 	                      "[There is a wall/agent in front of mine (" + agent.getProgram().getClass().getSimpleName() +"). Action " + act +
 	                      " not executed]";
 	                updateViews(msg);
+	                
 	            }
 	          break;
 	      }

@@ -63,11 +63,7 @@ public class Mandingas_agent implements AgentProgram{
 	      int d = actuator.movement(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
 	      
 	      if (0 <= d && d < 4) {
-	        for (int i = 1; i <= d; i++) {
-	          cmd.add(language.getAction(3)); //rotate
-	        }
-	        cmd.add(language.getAction(2)); // advance
-	        
+	        directions(d);
 	      }else if(d == 4) {
 	    	cmd.add(language.getAction(4));  //eat
 	      }else {
@@ -76,17 +72,27 @@ public class Mandingas_agent implements AgentProgram{
 	    }
 	    String x = cmd.get(0);
 	    cmd.remove(0);
-	    changeActuator(x);
+	    if(x.equals(language.getAction(2))) { 
+	       actuator.changeCoordinates(true); 
+	    } 
 	    return new Action(x);
 	  }  
 	  
-	  public void changeActuator(String x) {
-		  if(x.equals(language.getAction(3))) {
-		    	actuator.changeOrientation();
-		    	actuator.seeOrientation();
-		  }else if(x.equals(language.getAction(2))) {
-		    	actuator.changeCoordinates();
+	  
+	  
+	  public void directions(int d) {
+		  
+		  int orientation=actuator.getOrientation();
+		  actuator.changeOrientation(d);
+		  
+		  if(d!=orientation) {
+			  int change = d==0 ? 4 : d;
+			  change= change > orientation ? change : 4+change;
+			  for (int i = orientation; i < change; i++) {
+		          cmd.add(language.getAction(3));
+		      }
 		  }
+		  cmd.add(language.getAction(2));
 	  }
 
 	  /**
