@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.CS_agent;
+package unalcol.agents.examples.labyrinth.Mandingas_agent;
 
 import java.util.HashMap;
 

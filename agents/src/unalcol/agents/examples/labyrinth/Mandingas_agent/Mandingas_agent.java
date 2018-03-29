@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.CS_agent;
+package unalcol.agents.examples.labyrinth.Mandingas_agent;
 
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
@@ -9,16 +9,16 @@ import unalcol.types.collection.vector.Vector;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class CS_Agent implements AgentProgram{
+public class Mandingas_agent implements AgentProgram{
 	
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
 	  private Actuator actuator;
 	
-	  public CS_Agent( ) {
+	  public Mandingas_agent( ) {
 	  }
 
-	  public CS_Agent(   SimpleLanguage _language  ) {
+	  public Mandingas_agent(   SimpleLanguage _language  ) {
 		  language = _language;
 		  actuator = new Actuator();
 	  }
