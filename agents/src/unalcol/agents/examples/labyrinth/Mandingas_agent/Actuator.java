@@ -1,6 +1,7 @@
 package unalcol.agents.examples.labyrinth.Mandingas_agent;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Queue;
 /**
 *
@@ -22,6 +23,8 @@ public class Actuator {
 		y = 0;
 		orientation = 0;
 		map = new Map();
+		Node current = new Node();
+		map.add(x, y, current);
 	}
 	
 	/**
@@ -133,7 +136,6 @@ public class Actuator {
 		}else {
 			return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
 		}
-		
 	}
 	
 	/**
@@ -145,8 +147,11 @@ public class Actuator {
 	 */
 	public int search(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
 		boolean [] neigh = getSurroundings(PF, PR, PB, PL);
+		setNeighbors(neigh);
+		printNeig();
 		boolean flag = true;
         int k=0;
+        
         //System.out.println(orientation+": "+neigh[0]+" "+neigh[1]+" "+neigh[2]+" "+neigh[3]);
         while( flag ){
             k = (int)(Math.random()*4);
@@ -206,5 +211,61 @@ public class Actuator {
 		}
 		return u;
 	}
+	
+	/**
+	 * 
+	 * Asigna todos los nodos como debe ser
+	 * 
+	 * @param Los vecinos de la casilla actual
+	 */
+	public void setNeighbors(boolean walls[]){
+		LinkedList<int[]> neighbors = new LinkedList<int[]>();
+		for(int i = 0; i<4;i++ ) {
+			if(!walls[i]) {
+				int[] n = new int [2];
+				switch(i) {
+					case(0):
+						n[0]=x;
+						n[1]=y-1;
+						neighbors.add(n);
+						break;
+					case(1):
+						n[0]=x+1;
+						n[1]=y;
+						neighbors.add(n);
+						break;
+					case(2):
+						n[0]=x;
+						n[1]=y+1;
+						neighbors.add(n);
+						break;
+					case(3):
+						n[0]=x-1;
+						n[1]=y;
+						neighbors.add(n);
+						break;
+				}
+			}
+		}
+		Node current = map.node(x, y);
 		
+		current.setNeighbors(neighbors);
+		map.add(x, y, current);
+	}
+	
+	public void printNeig() {
+		System.out.println("-------------------");
+		System.out.println("X: "+x+"| Y: "+y);
+		int i=1;
+		for (int[] neigh : map.node(x,y).getNeighbors()) {
+			System.out.println("Vecino: "+i);
+			System.out.println("x: "+neigh[0]+"| y: "+neigh[1]);
+			if(map.contains(neigh[0], neigh[1])) {
+				if(map.node(neigh[0], neigh[1]).isFood()) {
+					System.out.println("Tiene Comida");
+				}
+			}
+		}
+		System.out.println("\n");
+	}
 }

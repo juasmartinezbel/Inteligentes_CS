@@ -6,7 +6,7 @@ import java.util.LinkedList;
 * @author Cristian Rojas y Sebastian Martinez
 */
 public class Node {
-	private LinkedList<Node> neighbors;
+	private LinkedList<int[]> neighbors;
 	private boolean food=false;
 	private boolean badFood=false;
 	
@@ -21,12 +21,8 @@ public class Node {
 		return food;
 	}
 	
-	public LinkedList<Node> getNeighbors() {
+	public LinkedList<int[]> getNeighbors() {
 		return neighbors;
-	}
-	
-	public void setFood(boolean food) {
-		this.food = food;
 	}
 	
 	public void thisIsBadFood() {
@@ -37,9 +33,10 @@ public class Node {
 		return badFood;
 	}
 	
-	public void setNeighbors(LinkedList<Node> neighbors) {
+	public void setNeighbors(LinkedList<int[]> neighbors) {
 		this.neighbors = neighbors;
 	}
+	
 	
 	
 	
