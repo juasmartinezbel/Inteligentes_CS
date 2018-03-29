@@ -13,12 +13,14 @@ public class CS_Agent implements AgentProgram{
 	
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
+	  private Actuator actuator;
+	
 	  public CS_Agent( ) {
 	  }
 
 	  public CS_Agent(   SimpleLanguage _language  ) {
 		  language = _language;
-		  
+		  actuator = new Actuator();
 	  }
 
 	  public void setLanguage(  SimpleLanguage _language ){
@@ -55,23 +57,17 @@ public class CS_Agent implements AgentProgram{
 	              booleanValue();
 	      boolean FOOD = ( (Boolean) p.getAttribute(language.getPercept(10))).
 	              booleanValue();
-	      boolean FOOD_COLOR = ( (Boolean) p.getAttribute(language.getPercept(11))).
-	              booleanValue();
-	      boolean FOOD_SHAPE = ( (Boolean) p.getAttribute(language.getPercept(12))).
-	              booleanValue();
-	      boolean FOOD_SIZE = ( (Boolean) p.getAttribute(language.getPercept(13))).
-	              booleanValue();
-	      boolean FOOD_WEIGHT = ( (Boolean) p.getAttribute(language.getPercept(14))).
-	              booleanValue();
 	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
 
 
-	      int d = movement(PF, PR, PB, PL, MT, FAIL, FOOD, FOOD_COLOR, FOOD_SHAPE, FOOD_SIZE, FOOD_WEIGHT, energy);
+	      int d = actuator.movement(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
+	      
 	      if (0 <= d && d < 4) {
 	        for (int i = 1; i <= d; i++) {
 	          cmd.add(language.getAction(3)); //rotate
 	        }
 	        cmd.add(language.getAction(2)); // advance
+	        
 	      }else if(d == 4) {
 	    	cmd.add(language.getAction(4));  //eat
 	      }else {
@@ -81,33 +77,8 @@ public class CS_Agent implements AgentProgram{
 	    String x = cmd.get(0);
 	    cmd.remove(0);
 	    return new Action(x);
-	  }
-	  
-	  public int movement(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, boolean FOOD_COLOR, boolean FOOD_SHAPE, boolean FOOD_SIZE, boolean FOOD_WEIGHT, Integer energy) {
-	        if (MT) return -1;
-	        boolean flag = true;
-	        int k=0;
-	        while( flag ){
-	            k = (int)(Math.random()*4);
-	            switch(k){
-	                case 0:
-	                    flag = PF;
-	                    break;
-	                case 1:
-	                    flag = PR;
-	                    break;
-	                case 2:
-	                    flag = PB;
-	                    break;
-	                default:
-	                    flag = PL;
-	                    break;                    
-	            }
-	        }
-	        System.out.println(FOOD + ", " + FOOD_COLOR + ", " + FOOD_SHAPE + ", " + FOOD_SIZE + ", " + FOOD_WEIGHT + ", " + energy);
-	        return 4;
-	    } 
-	  
+	  }  
+
 
 	  /**
 	   * goalAchieved
