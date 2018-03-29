@@ -14,7 +14,9 @@ public class Mandingas_agent implements AgentProgram{
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
 	  private Actuator actuator;
-	
+	  private boolean ate=false;
+	  private int lastEnergy=0;
+	  
 	  public Mandingas_agent( ) {
 	  }
 
@@ -41,8 +43,10 @@ public class Mandingas_agent implements AgentProgram{
 	   * @return Action[]
 	   */
 	  public Action compute(Percept p){
-	    if( cmd.size() == 0 ){
-
+		  
+	    
+	    
+		if( cmd.size() == 0 ){
 	      boolean PF = ( (Boolean) p.getAttribute(language.getPercept(0))).
 	          booleanValue();
 	      boolean PR = ( (Boolean) p.getAttribute(language.getPercept(1))).
@@ -58,9 +62,14 @@ public class Mandingas_agent implements AgentProgram{
 	      boolean FOOD = ( (Boolean) p.getAttribute(language.getPercept(10))).
 	              booleanValue();
 	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
-
+	      
+	      boolean isBad=false;
+	      if(ate) {
+	    	isBad=lastEnergy>energy;
+		  }
+	      lastEnergy=energy;
 	      //Defines the kind of task the actuator is going to make, for now is random
-	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
+	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isBad);
 	      
 	      if (0 <= d && d < 4) {
 	        directions(d); //Sets the directions
@@ -75,8 +84,9 @@ public class Mandingas_agent implements AgentProgram{
 	    
 	    //Updates the coordinates
 	    if(x.equals(language.getAction(2))) { 
-	       actuator.changeCoordinates(true); 
-	    } 
+	       actuator.changeCoordinates(false); 
+	    }
+	    ate=x.equals(language.getAction(4));
 	    return new Action(x);
 	  }  
 	  

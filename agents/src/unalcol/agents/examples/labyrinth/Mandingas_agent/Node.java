@@ -1,17 +1,23 @@
 package unalcol.agents.examples.labyrinth.Mandingas_agent;
 
 import java.util.LinkedList;
-
+/**
+*
+* @author Cristian Rojas y Sebastian Martinez
+*/
 public class Node {
-	private boolean food;
 	private LinkedList<Node> neighbors;
+	private boolean food=false;
+	private boolean badFood=false;
 	
-	public Node(boolean food) {
-		// TODO Auto-generated constructor stub
-		this.food = food;
+	public Node() {
 	}
 	
-	public boolean getFood() {
+	public void thisIsFood() {
+		food = true;
+	}
+	
+	public boolean isFood() {
 		return food;
 	}
 	
@@ -21,6 +27,14 @@ public class Node {
 	
 	public void setFood(boolean food) {
 		this.food = food;
+	}
+	
+	public void thisIsBadFood() {
+		badFood=true;
+	}
+	
+	public boolean isBadFood() {
+		return badFood;
 	}
 	
 	public void setNeighbors(LinkedList<Node> neighbors) {
