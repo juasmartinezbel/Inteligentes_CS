@@ -8,8 +8,8 @@ public class Map {
 	public Map() {
 		// TODO Auto-generated constructor stub
 		map = new HashMap<String, Node>();
-		
 	}
+	
 	
 	public String hashFunction(Integer x, Integer y) {
 		return String.valueOf(x) +"|"+ String.valueOf(y);

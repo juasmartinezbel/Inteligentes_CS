@@ -35,7 +35,7 @@ public class Mandingas_agent implements AgentProgram{
 	  
 	  
 	  /**
-	   * execute
+	   * Execute the required movements.
 	   *
 	   * @param perception Perception
 	   * @return Action[]
@@ -59,11 +59,11 @@ public class Mandingas_agent implements AgentProgram{
 	              booleanValue();
 	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
 
-
-	      int d = actuator.movement(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
+	      //Defines the kind of task the actuator is going to make, for now is random
+	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
 	      
 	      if (0 <= d && d < 4) {
-	        directions(d);
+	        directions(d); //Sets the directions
 	      }else if(d == 4) {
 	    	cmd.add(language.getAction(4));  //eat
 	      }else {
@@ -72,6 +72,8 @@ public class Mandingas_agent implements AgentProgram{
 	    }
 	    String x = cmd.get(0);
 	    cmd.remove(0);
+	    
+	    //Updates the coordinates
 	    if(x.equals(language.getAction(2))) { 
 	       actuator.changeCoordinates(true); 
 	    } 
@@ -79,9 +81,11 @@ public class Mandingas_agent implements AgentProgram{
 	  }  
 	  
 	  
-	  
+	  /**
+	   * Rotates the agent as the direction that is indicated
+	   * @param d
+	   */
 	  public void directions(int d) {
-		  
 		  int orientation=actuator.getOrientation();
 		  actuator.changeOrientation(d);
 		  

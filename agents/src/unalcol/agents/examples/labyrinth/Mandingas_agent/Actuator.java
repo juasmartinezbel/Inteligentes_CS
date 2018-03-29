@@ -21,31 +21,50 @@ public class Actuator {
 		map = new Map();
 	}
 	
+	/**
+	 * 
+	 * @return the orientation
+	 */
 	public int getOrientation() {
 		return orientation;
 	}
 	
+	/**
+	 * Change the orientation to a new direction
+	 * 0 -> North
+	 * 1 -> East
+	 * 2 -> South
+	 * 3 -> West
+	 * @param or, the new orientation
+	 */
 	public void changeOrientation(int or) {
 		orientation=or;
 	}
-
+	
+	
+	/**
+	 * 
+	 * Change the x/y coordinates if the agent moves
+	 * 
+	 * @param print defines if we want to print the coordinates for convinence
+	 */
 	public void changeCoordinates(boolean print) {
 		switch(orientation) {
 		case(0):
 			y--;
-			if(print) System.out.println("X: "+x+"Y: "+y);
+			if(print) System.out.println("X: "+x+" | Y: "+y);
 			break;
 		case(1):
 			x++;
-			if(print) System.out.println("X: "+x+"Y: "+y);
+			if(print) System.out.println("X: "+x+" | Y: "+y);
 			break;
 		case(2):
 			y++;
-			if(print) System.out.println("X: "+x+"Y: "+y);
+			if(print) System.out.println("X: "+x+" | Y: "+y);
 			break;
 		case(3):
 			x--;
-			if(print) System.out.println("X: "+x+"Y: "+y);
+			if(print) System.out.println("X: "+x+" | Y: "+y);
 			break;
 		default:
 			System.out.println("Error de Programa");
@@ -53,19 +72,53 @@ public class Actuator {
 		}
 	}
 	
-	public int movement(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
+	/**
+	 * 
+	 * Defines the tasks the agent is going to make, whether is to move or eat
+	 * 
+	 * @param The perceptions
+	 * @return No identifier for the actions
+	 * 
+	 */
+	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
 		lastEnergy=energy;
-	
+		
 		if (MT) return -1;
+		
+		//Defines if it needs to eat if energy is below 15 or has a change to rise to 40
 		if ((energy < 15) || goEat) {
 			goEat=true;
 			return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
 		}
+		
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
 	}
 	
+	/**
+	 * 
+	 * Defines that, if there is food, it should eat until it's energy is above 40
+	 * 
+	 * @param The perceptions
+	 * @return No identifier for the actions
+	 * 
+	 */
+	public int eat(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
+		if(FOOD) {
+			goEat=(energy<40);
+			return 4;
+		}
+		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
+	}
+	
+	/**
+	 * 
+	 * Defines movement accord of where the agent needs to rotate.
+	 * 
+	 * @param The perceptions
+	 * @return No identifier for the actions
+	 */
 	public int search(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
-		boolean [] neigh = getDirections( PF, PR, PB, PL);
+		boolean [] neigh = getSurroundings(PF, PR, PB, PL);
 		Node current = new Node(FOOD);
 		map.add(x, y, current);
 		
@@ -93,7 +146,15 @@ public class Actuator {
 		
 	}
 	
-	public boolean[] getDirections(boolean PF, boolean PR, boolean PB, boolean PL) {
+	
+	/**
+	 * 
+	 * Defines the surroundings accord where the agent is looking
+	 * 
+	 * @param The perceptions
+	 * @return No identifier for the actions
+	 */
+	public boolean[] getSurroundings(boolean PF, boolean PR, boolean PB, boolean PL) {
 		/*
 		 * 
 		 * 0 -> North
@@ -122,14 +183,5 @@ public class Actuator {
 		}
 		return u;
 	}
-	
-	
-	public int eat(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
-		if(FOOD) {
-			goEat=(energy<40);
-			return 4;
-		}
-		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
-	}
-	
+		
 }
