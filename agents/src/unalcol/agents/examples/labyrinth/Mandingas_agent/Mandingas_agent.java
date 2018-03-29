@@ -76,9 +76,18 @@ public class Mandingas_agent implements AgentProgram{
 	    }
 	    String x = cmd.get(0);
 	    cmd.remove(0);
+	    changeActuator(x);
 	    return new Action(x);
 	  }  
-
+	  
+	  public void changeActuator(String x) {
+		  if(x.equals(language.getAction(3))) {
+		    	actuator.changeOrientation();
+		    	actuator.seeOrientation();
+		  }else if(x.equals(language.getAction(2))) {
+		    	actuator.changeCoordinates();
+		  }
+	  }
 
 	  /**
 	   * goalAchieved
