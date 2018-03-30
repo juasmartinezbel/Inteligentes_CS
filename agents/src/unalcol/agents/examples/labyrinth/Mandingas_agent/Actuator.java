@@ -83,7 +83,7 @@ public class Actuator {
 	 * @return No identifier for the actions
 	 * 
 	 */
-	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
+	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isGood) {
 		
 		if (MT) return -1;
 		
@@ -108,18 +108,20 @@ public class Actuator {
 			if(!thisNode.isFood()) {
 				thisNode.thisIsFood();
 				map.add(x, y, thisNode);
+				return 4;
 			}
-			if(isBad) {
-				if(!thisNode.isBadFood()) {
-					thisNode.thisIsBadFood();
+			if(isGood || thisNode.isGoodFood()) {
+				if(!thisNode.isGoodFood()) {
+					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);
-				}	
-			}else {
-				if (((energy < 35) || keepEating)) {
+				}
+				if (((energy < 39) || keepEating)) {
 					keepEating=true;
-					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isBad);
+					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
 				}
 			}
+
+				
 		}
 		
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
@@ -135,7 +137,7 @@ public class Actuator {
 	 */
 	public int eat(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
 		Node thisNode=map.node(x, y);
-		boolean shouldEat=!thisNode.isBadFood();
+		boolean shouldEat=thisNode.isGoodFood();
 		
 		if(shouldEat) {
 			keepEating=(energy<40);

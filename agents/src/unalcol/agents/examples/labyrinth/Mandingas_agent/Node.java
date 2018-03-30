@@ -10,7 +10,7 @@ import java.util.LinkedList;
 public class Node {
 	private LinkedList<String> neighbors;
 	private boolean food=false;
-	private boolean badFood=true;
+	private boolean goodFood=false;
 	
 	public Node(Integer x, Integer y, boolean [] neighbors) {
 		this.neighbors = new LinkedList<String>();
@@ -37,12 +37,12 @@ public class Node {
 		this.food = food;
 	}
 	
-	public void thisIsBadFood() {
-		badFood=true;
+	public void thisIsGoodFood() {
+		goodFood=true;
 	}
 	
-	public boolean isBadFood() {
-		return badFood;
+	public boolean isGoodFood() {
+		return goodFood;
 	}		
 	
 	public void printNeighbors() {

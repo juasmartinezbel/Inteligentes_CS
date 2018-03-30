@@ -50,7 +50,7 @@ public class Map {
 			
 			if(map.containsKey(node)) {
 				
-				if(map.get(node).isFood() && !map.get(node).isBadFood()) {
+				if(map.get(node).isFood() && map.get(node).isGoodFood()) {
 					return checked.get(node);
 				}
 				
