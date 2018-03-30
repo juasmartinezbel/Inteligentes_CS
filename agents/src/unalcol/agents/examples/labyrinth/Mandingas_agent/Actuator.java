@@ -14,14 +14,19 @@ public class Actuator {
 	private Integer x;
 	private Integer y;
 	private Integer orientation;
-	private Queue<String> queue;
-	private boolean keepEating=false;
+	private Queue<String> queue;	
+	private Queue<Integer> path;
+	
+	private boolean keepEating;
+	private boolean lookingForFood;
 	
 	Actuator(){		
 		x = 0;
 		y = 0;
 		orientation = 0;
 		map = new Map();
+		keepEating=false;
+		lookingForFood = false;
 	}
 	
 	/**
@@ -72,11 +77,7 @@ public class Actuator {
 		default:
 			System.out.println("Error de Programa");
 			System.exit(-1);
-		}
-		if(!map.contains(x, y)) {
-			Node current = new Node();
-			map.add(x, y, current);
-		}
+		}		
 	}
 	
 	/**
@@ -87,31 +88,54 @@ public class Actuator {
 	 * @return No identifier for the actions
 	 * 
 	 */
-	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
+	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isGood) {
 		
 		if (MT) return -1;
-		//Defines if it needs to eat if energy is below 15 or has a change to rise to 40
 		
+		//Add the the node if its not contained 
+		if(!map.contains(x, y)) {
+			Node current = new Node(x, y, getSurroundings(PF, PR, PB, PL));
+			map.add(x, y, current);
+		}	
 		
+
 		
+
+		//Each time the agent finds food it recharge the energy and update the map
 		if(FOOD) {
+			lookingForFood = false;
 			Node thisNode=map.node(x, y);
 			if(!thisNode.isFood()) {
 				thisNode.thisIsFood();
 				map.add(x, y, thisNode);
+				return 4;
 			}
-			if(isBad) {
-				if(!thisNode.isBadFood()) {
-					thisNode.thisIsBadFood();
+			if(isGood || thisNode.isGoodFood()) {
+				if(!thisNode.isGoodFood()) {
+					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);
-				}	
-			}else {
-				if (((energy < 15) || keepEating)) {
-					keepEating=true;
-					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isBad);
 				}
-			}
+				if (((energy < 39) || keepEating)) {
+					keepEating=true;
+					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
+				}
+			}				
 		}
+		
+		//Changes the state when the the agent is hungry
+		if(energy < 30 && lookingForFood == false) {
+			path = map.nearestFood(x, y);
+			if(path != null) {
+				lookingForFood = true;
+			}			
+		}
+		
+		//Follow a path when path has a path 
+		if(path!= null && path.size() > 0) {
+			return path.poll();
+		}
+		
+		
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
 	}
 	
@@ -125,7 +149,7 @@ public class Actuator {
 	 */
 	public int eat(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
 		Node thisNode=map.node(x, y);
-		boolean shouldEat=!thisNode.isBadFood();
+		boolean shouldEat=thisNode.isGoodFood();
 		
 		if(shouldEat) {
 			keepEating=(energy<40);

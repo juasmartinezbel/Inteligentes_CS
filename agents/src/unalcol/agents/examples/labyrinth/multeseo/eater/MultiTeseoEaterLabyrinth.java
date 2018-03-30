@@ -94,10 +94,10 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
 	            int bit_flag = (1<<10);
 	            
 	            if( (structure[x][y] & bit_flag) == bit_flag ){
-	              System.out.println("Eating good food...");
+//	              System.out.println("Eating good food...");
 	              agent_energy_level[i] = Math.min( agent_energy_level[i] + INC_ENERGY_LEVEL, MAX_ENERGY_LEVEL );
 	            }else{
-	              System.out.println("Eating bad food...");
+//	              System.out.println("Eating bad food...");
 	              agent_energy_level[i] = Math.max( agent_energy_level[i] - DEC_ENERGY_LEVEL, 0 );
 	            }
 	          }

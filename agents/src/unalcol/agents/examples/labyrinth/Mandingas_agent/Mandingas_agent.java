@@ -31,7 +31,9 @@ public class Mandingas_agent implements AgentProgram{
 
 	  public void init(){
 	    cmd.clear();
-	    
+	    actuator = new Actuator();
+	    ate=false;
+		lastEnergy=0;
 	  }
 
 	  
@@ -63,13 +65,13 @@ public class Mandingas_agent implements AgentProgram{
 	              booleanValue();
 	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
 	      
-	      boolean isBad=false;
+	      boolean isGood=false;
 	      if(ate) {
-	    	isBad=lastEnergy>energy;
+	    	  isGood=lastEnergy<=energy;
 		  }
 	      lastEnergy=energy;
 	      //Defines the kind of task the actuator is going to make, for now is random
-	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isBad);
+	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
 	      
 	      if (0 <= d && d < 4) {
 	        directions(d); //Sets the directions
