@@ -72,11 +72,7 @@ public class Actuator {
 		default:
 			System.out.println("Error de Programa");
 			System.exit(-1);
-		}
-		if(!map.contains(x, y)) {
-			Node current = new Node();
-			map.add(x, y, current);
-		}
+		}		
 	}
 	
 	/**
@@ -90,10 +86,23 @@ public class Actuator {
 	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
 		
 		if (MT) return -1;
-		//Defines if it needs to eat if energy is below 15 or has a change to rise to 40
 		
+		//Add the the node if its not contained 
+		if(!map.contains(x, y)) {
+			Node current = new Node(x, y, getSurroundings(PF, PR, PB, PL));
+			map.add(x, y, current);
+		}	
 		
+		Queue<String> path = map.nearestFood(x, y);
+		if(path != null) {
+			for(String neighbor : path) {
+				System.out.print( neighbor + " ");
+			}
+			System.out.println();
+		}
 		
+
+		//Each time the agent finds food it recharge the energy.
 		if(FOOD) {
 			Node thisNode=map.node(x, y);
 			if(!thisNode.isFood()) {
@@ -106,12 +115,13 @@ public class Actuator {
 					map.add(x, y, thisNode);
 				}	
 			}else {
-				if (((energy < 15) || keepEating)) {
+				if (((energy < 35) || keepEating)) {
 					keepEating=true;
 					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isBad);
 				}
 			}
 		}
+		
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
 	}
 	
