@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Stack;
 /**
 *
 * @author Cristian Rojas y Sebastian Martinez
@@ -54,7 +55,7 @@ public class Map {
 	
 	public Queue<Integer> nearestFood(Integer x, Integer y) {
 		
-		Queue<String> q = new PriorityQueue <String> ();
+		Queue<String> q = new LinkedList <String> ();
 		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
 		
@@ -68,7 +69,6 @@ public class Map {
 			if(map.containsKey(node)) {
 				
 				if(map.get(node).isFood() && map.get(node).isGoodFood()) {
-					System.out.println();
 					return checked.get(node);
 				}
 
@@ -83,6 +83,35 @@ public class Map {
 			}
 			
 			
+		}
+		return null;
+	}
+	
+	public Queue<Integer> nearestUnexplored(Integer x, Integer y) {
+		
+		Queue<String> q = new LinkedList <String> ();
+		Queue<Integer> path = new LinkedList <Integer> ();
+		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
+		
+		q.add(hashFunction(x, y));
+		checked.put(hashFunction(x, y), path);
+
+		while(q.size()!=0) {			
+			String node = q.poll();			
+
+				
+			if(!map.containsKey(node)) {
+				return checked.get(node);
+			}
+
+			for (String neighbor : map.get(node).getNeighbors()) {
+				if(!checked.containsKey(neighbor)) {
+					q.add(neighbor);
+					path = new LinkedList <Integer> (checked.get(node));
+					path.add(getProximity(neighbor, node));
+					checked.put(neighbor, path);					
+				}
+			}		
 		}
 		return null;
 	}

@@ -123,19 +123,25 @@ public class Actuator {
 		}
 		
 		//Changes the state when the the agent is hungry
-		if(energy < 30 && lookingForFood == false) {
+		if(energy < 10 && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(path != null) {
 				lookingForFood = true;
+				System.out.println("lookingForFood..");
 			}			
 		}
+		
+		if(path== null || path.size()==0) {
+			path = map.nearestUnexplored(x, y);
+			System.out.println("Searching..");
+		}
+		
 		
 		//Follow a path when path has a path 
 		if(path!= null && path.size() > 0) {
 			return path.poll();
 		}
-		
-		
+
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
 	}
 	
