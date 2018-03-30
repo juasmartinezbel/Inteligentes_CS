@@ -31,7 +31,9 @@ public class Mandingas_agent implements AgentProgram{
 
 	  public void init(){
 	    cmd.clear();
-	    
+	    actuator = new Actuator();
+	    ate=false;
+		lastEnergy=0;
 	  }
 
 	  

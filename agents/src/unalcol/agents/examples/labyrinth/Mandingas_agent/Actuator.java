@@ -14,14 +14,19 @@ public class Actuator {
 	private Integer x;
 	private Integer y;
 	private Integer orientation;
-	private Queue<String> queue;
-	private boolean keepEating=false;
+	private Queue<String> queue;	
+	private Queue<Integer> path;
+	
+	private boolean keepEating;
+	private boolean lookingForFood;
 	
 	Actuator(){		
 		x = 0;
 		y = 0;
 		orientation = 0;
 		map = new Map();
+		keepEating=false;
+		lookingForFood = false;
 	}
 	
 	/**
@@ -93,17 +98,12 @@ public class Actuator {
 			map.add(x, y, current);
 		}	
 		
-		Queue<String> path = map.nearestFood(x, y);
-		if(path != null) {
-			for(String neighbor : path) {
-				System.out.print( neighbor + " ");
-			}
-			System.out.println();
-		}
+
 		
 
-		//Each time the agent finds food it recharge the energy.
+		//Each time the agent finds food it recharge the energy and update the map
 		if(FOOD) {
+			lookingForFood = false;
 			Node thisNode=map.node(x, y);
 			if(!thisNode.isFood()) {
 				thisNode.thisIsFood();
@@ -119,10 +119,27 @@ public class Actuator {
 					keepEating=true;
 					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
 				}
-			}
-
-				
+			}				
 		}
+//		path = map.nearestFood(x, y);
+//		if(path != null) {
+//			for(int element : path) {
+//				System.out.println(element + " ");
+//			}System.out.println();
+//		}
+		
+		if(energy < 15 && lookingForFood == false) {
+			path = map.nearestFood(x, y);
+			System.out.println("Position: " + x + " " + y);
+			if(path != null) {
+				lookingForFood = true;
+			}			
+		}
+		
+		if(path!= null && path.size() > 0) {
+			return path.poll();
+		}
+		
 		
 		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
 	}

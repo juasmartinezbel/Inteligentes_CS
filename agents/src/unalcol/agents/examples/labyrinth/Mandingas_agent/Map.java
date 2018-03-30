@@ -15,7 +15,7 @@ public class Map {
 	}	
 	
 	public static String hashFunction(Integer x, Integer y) {
-		return (String.valueOf(x) +"|"+ String.valueOf(y));
+		return (String.valueOf(x) +","+ String.valueOf(y));
 	}
 	
 	public int size() {
@@ -34,14 +34,30 @@ public class Map {
 		return map.containsKey(hashFunction(x, y));
 	}
 	
-	public Queue<String> nearestFood(Integer x, Integer y) {
+	public String[] key2coordinates(String key) {
+		return key.split(",");
+	}
+	
+	public int getProximity(String a, String b) {
+		String[] A = key2coordinates(a);
+		String[] B = key2coordinates(b);
+		int dif_x = Integer.parseInt(B[0]) - Integer.parseInt(A[0]);
+		int dif_y = Integer.parseInt(B[1]) - Integer.parseInt(A[1]);
+		
+		if(dif_y > 0) return 0;
+		if(dif_x < 0) return 1;
+		if(dif_y < 0) return 2;
+		if(dif_x > 0) return 3;
+		return -1;
+	}
+	
+	public Queue<Integer> nearestFood(Integer x, Integer y) {
 		
 		Queue<String> q = new PriorityQueue <String> ();
-		Queue<String> path = new PriorityQueue <String> ();
-		HashMap<String, Queue<String>> checked = new HashMap<String, Queue<String>>();  
+		Queue<Integer> path = new PriorityQueue <Integer> ();
+		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
 		
 		q.add(hashFunction(x, y));
-		path.add(hashFunction(x, y));
 		checked.put(hashFunction(x, y), path);
 		
 		boolean goal = false;
@@ -51,15 +67,18 @@ public class Map {
 			if(map.containsKey(node)) {
 				
 				if(map.get(node).isFood() && map.get(node).isGoodFood()) {
+					for(int element : checked.get(node)) {
+						System.out.print(element + " ");
+					}
+					System.out.println();
 					return checked.get(node);
 				}
-				
+
 				for (String neighbor : map.get(node).getNeighbors()) {
 					if(!checked.containsKey(neighbor)) {
 						q.add(neighbor);
-						path = new PriorityQueue <String> ();
-						path = checked.get(node);
-						path.add(neighbor);
+						path = new PriorityQueue <Integer> (checked.get(node));
+						path.add(getProximity(neighbor, node));
 						checked.put(neighbor, path);
 					}
 				}
