@@ -121,21 +121,16 @@ public class Actuator {
 				}
 			}				
 		}
-//		path = map.nearestFood(x, y);
-//		if(path != null) {
-//			for(int element : path) {
-//				System.out.println(element + " ");
-//			}System.out.println();
-//		}
 		
-		if(energy < 15 && lookingForFood == false) {
+		//Changes the state when the the agent is hungry
+		if(energy < 30 && lookingForFood == false) {
 			path = map.nearestFood(x, y);
-			System.out.println("Position: " + x + " " + y);
 			if(path != null) {
 				lookingForFood = true;
 			}			
 		}
 		
+		//Follow a path when path has a path 
 		if(path!= null && path.size() > 0) {
 			return path.poll();
 		}

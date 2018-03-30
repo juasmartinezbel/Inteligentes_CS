@@ -1,6 +1,7 @@
 package unalcol.agents.examples.labyrinth.Mandingas_agent;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 /**
@@ -54,7 +55,7 @@ public class Map {
 	public Queue<Integer> nearestFood(Integer x, Integer y) {
 		
 		Queue<String> q = new PriorityQueue <String> ();
-		Queue<Integer> path = new PriorityQueue <Integer> ();
+		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
 		
 		q.add(hashFunction(x, y));
@@ -67,9 +68,6 @@ public class Map {
 			if(map.containsKey(node)) {
 				
 				if(map.get(node).isFood() && map.get(node).isGoodFood()) {
-					for(int element : checked.get(node)) {
-						System.out.print(element + " ");
-					}
 					System.out.println();
 					return checked.get(node);
 				}
@@ -77,7 +75,7 @@ public class Map {
 				for (String neighbor : map.get(node).getNeighbors()) {
 					if(!checked.containsKey(neighbor)) {
 						q.add(neighbor);
-						path = new PriorityQueue <Integer> (checked.get(node));
+						path = new LinkedList <Integer> (checked.get(node));
 						path.add(getProximity(neighbor, node));
 						checked.put(neighbor, path);
 					}
