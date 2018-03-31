@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent;
+package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,15 +9,15 @@ import java.util.Stack;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Map {
-	private HashMap<String, Node> map;
+public class Map2 {
+	private HashMap<String, Node2> map;
 	private boolean pending=false;
 	private String nodePending="";
 	private String keyPending="";
 	
 	
-	public Map() {
-		map = new HashMap<String, Node>();
+	public Map2() {
+		map = new HashMap<String, Node2>();
 	}	
 	
 	public static String hashFunction(Integer x, Integer y) {
@@ -28,11 +28,11 @@ public class Map {
 		return map.size();
 	}
 	
-	public void add(Integer x, Integer y, Node node) {
+	public void add(Integer x, Integer y, Node2 node) {
 		map.put(hashFunction(x, y), node);
 	}
 	
-	public Node node(Integer x, Integer y) {
+	public Node2 node(Integer x, Integer y) {
 		return map.get(hashFunction(x, y));
 	}
 	
@@ -154,7 +154,7 @@ public class Map {
 		
 		//Checks if the node is visited or if it is one that should be explored
 		if(map.containsKey(bye)) {
-			Node tmpNode= map.get(bye);
+			Node2 tmpNode= map.get(bye);
 			map.remove(bye);
 			if(lookingForFood) {
 				newPath=nearestFood(x, y);
@@ -186,7 +186,7 @@ public class Map {
 	 */
 	public Queue<Integer> hideNeighbor(Integer x, Integer y, String bye) {
 		String tmpKey=hashFunction(x,y);
-		Node tmpNode= map.get(tmpKey);
+		Node2 tmpNode= map.get(tmpKey);
 		nodePending=bye;
 		keyPending=tmpKey;
 		tmpNode.removeNeighbor(bye);
@@ -198,7 +198,7 @@ public class Map {
 	public void checkPending() {
 		if(pending&&!keyPending.equals("")) {
 			//System.out.println("Going back to normal");
-			Node p = map.get(keyPending);
+			Node2 p = map.get(keyPending);
 			p.addNeighbor(nodePending);
 			map.put(keyPending,p);
 			nodePending="";
