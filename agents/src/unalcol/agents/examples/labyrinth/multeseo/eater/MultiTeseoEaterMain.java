@@ -4,7 +4,7 @@ import unalcol.agents.Agent;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.examples.labyrinth.Labyrinth;
 import unalcol.agents.examples.labyrinth.Mandingas_agent.*;
-import unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son.Mandingas_agent2;
+import unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son.*;
 import unalcol.agents.examples.labyrinth.LabyrinthDrawer;
 import unalcol.agents.examples.labyrinth.teseo.simple.RandomReflexTeseo;
 import unalcol.agents.simulate.util.SimpleLanguage;

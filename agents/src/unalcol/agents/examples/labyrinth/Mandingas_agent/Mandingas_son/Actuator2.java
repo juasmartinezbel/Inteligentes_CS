@@ -19,6 +19,7 @@ public class Actuator2 {
 	
 	private boolean keepEating;
 	private boolean lookingForFood;
+	private boolean tryFood;
 	
 	Actuator2(){		
 		x = 0;
@@ -27,6 +28,7 @@ public class Actuator2 {
 		map = new Map2();
 		keepEating=false;
 		lookingForFood = false;
+		tryFood=true;
 	}
 	
 	/**
@@ -105,7 +107,8 @@ public class Actuator2 {
 		if(FOOD) {
 			lookingForFood = false;
 			Node2 thisNode=map.node(x, y);
-			if(!thisNode.isFood()) {
+			if(!thisNode.isFood()&&tryFood) {	
+				tryFood = Math.random() < 0.5;
 				thisNode.thisIsFood();
 				map.add(x, y, thisNode);
 				return 4;
@@ -116,6 +119,7 @@ public class Actuator2 {
 					map.add(x, y, thisNode);
 				}
 				if (((energy < 39) || keepEating)) {
+					
 					keepEating=true;
 					return eat(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
 				}
@@ -125,10 +129,11 @@ public class Actuator2 {
 		//Changes the state when the the agent is hungry
 		if(energy < 20 && !lookingForFood) {
 			path = map.nearestFood(x, y);
-			if(path != null) {
+			if(!path.isEmpty()) {
+				tryFood=true;
 				lookingForFood = true;
 				//System.out.println("lookingForFood..");
-			}			
+			}
 		}
 		
 		if(path== null || path.size()==0) {

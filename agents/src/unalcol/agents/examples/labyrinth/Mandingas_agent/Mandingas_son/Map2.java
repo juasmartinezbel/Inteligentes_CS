@@ -1,5 +1,6 @@
 package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -91,7 +92,6 @@ public class Map2 {
 	}
 	
 	public Queue<Integer> nearestUnexplored(Integer x, Integer y){
-		
 		Queue<String> q = new LinkedList <String> ();
 		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
@@ -100,25 +100,41 @@ public class Map2 {
 		checked.put(hashFunction(x, y), path);
 
 		while(q.size()!=0) {			
-			String node = q.poll();			
-
-				
+			String node = q.poll();
+			
 			if(!map.containsKey(node)) {
 				return checked.get(node);
 			}
+			LinkedList<String> ls= map.get(node).getNeighbors();
+			LinkedList<String> notVisited = new LinkedList<String>();
 			
-			for (String neighbor : map.get(node).getNeighbors()) {
+			
+			for (String neighbor:ls) {
+				if(!map.containsKey(neighbor))
+					notVisited.add(neighbor);		
+			}
+			
+			if(!notVisited.isEmpty()) {
+				ls=rearrange(notVisited);
+			}
+			
+			for (String neighbor:ls) {
 				if(!checked.containsKey(neighbor)) {
 					q.add(neighbor);
 					path = new LinkedList <Integer> (checked.get(node));
 					path.add(getProximity(neighbor, node));
 					checked.put(neighbor, path);					
 				}
-			}		
+			}	
+			
 		}
 		return new LinkedList <Integer>();
 	}
 	
+	public LinkedList<String> rearrange(LinkedList<String> n){
+		Collections.shuffle(n);
+		return n;
+	}
 	
 	/**
 	 * 
