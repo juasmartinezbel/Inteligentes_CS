@@ -21,6 +21,14 @@ public class Node {
 		
 	}
 	
+	public LinkedList<String> nodeNeighbors(){
+		return neighbors;
+	}
+	
+	public void setNeighbors(LinkedList<String> n){
+		 neighbors=n;
+	}
+	
 	public void thisIsFood() {
 		food = true;
 	}
@@ -45,9 +53,17 @@ public class Node {
 		return goodFood;
 	}		
 	
+	public void addNeighbor(String n) {
+		neighbors.add(n);
+	}
+	
+	public void removeNeighbor(String n) {
+		neighbors.remove(n);
+	}
+	
 	public void printNeighbors() {
 		for(String neighbor : this.neighbors) {
-			System.out.print( neighbor + " ");
+			System.out.print( neighbor + "|");
 		}
 		System.out.println();
 	}

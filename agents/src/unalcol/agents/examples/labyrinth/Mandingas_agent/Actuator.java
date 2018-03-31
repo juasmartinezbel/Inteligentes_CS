@@ -88,8 +88,8 @@ public class Actuator {
 	 * @return No identifier for the actions
 	 * 
 	 */
-	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isGood) {
-		
+	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isGood) {
+		boolean [] isAgent = getSurroundings(AF, AR, AB, AL);
 		if (MT) return -1;
 		
 		//Add the the node if its not contained 
@@ -117,32 +117,46 @@ public class Actuator {
 				}
 				if (((energy < 39) || keepEating)) {
 					keepEating=true;
-					return eat(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
+					return eat(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
 				}
 			}				
 		}
 		
 		//Changes the state when the the agent is hungry
-		if(energy < 10 && !lookingForFood) {
+		if(energy < 18 && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(path != null) {
 				lookingForFood = true;
-				System.out.println("lookingForFood..");
+				//System.out.println("lookingForFood..");
 			}			
 		}
 		
 		if(path== null || path.size()==0) {
+			map.checkPending();
 			path = map.nearestUnexplored(x, y);
-			System.out.println("Searching..");
+			//System.out.println("Searching..");
 		}
 		
 		
 		//Follow a path when path has a path 
 		if(path!= null && path.size() > 0) {
-			return path.poll();
+			int u = path.poll();
+			if(isAgent[u]) {
+				System.out.println(u);
+				path=map.alternativeRoute(x, y, u, lookingForFood);
+				if(path!= null && path.size() > 0) {
+					u = path.poll();
+				}else {
+					int v=u;
+					while(u!=v) {
+						u=search(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy);
+					}
+				}
+			}
+			return u; 
 		}
 
-		return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy); 
+		return search(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy); 
 	}
 	
 	/**
@@ -153,7 +167,7 @@ public class Actuator {
 	 * @return No identifier for the actions
 	 * 
 	 */
-	public int eat(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy, boolean isBad) {
+	public int eat(boolean PF, boolean PR, boolean PB, boolean PL,  boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isBad) {
 		Node thisNode=map.node(x, y);
 		boolean shouldEat=thisNode.isGoodFood();
 		
@@ -161,7 +175,7 @@ public class Actuator {
 			keepEating=(energy<40);
 			return 4;
 		}else {
-			return search(PF, PR, PB, PL, MT, FAIL, FOOD, energy);
+			return search(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy);
 		}
 		
 	}
@@ -173,8 +187,9 @@ public class Actuator {
 	 * @param The perceptions
 	 * @return No identifier for the actions
 	 */
-	public int search(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean FOOD, Integer energy) {
+	public int search(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy) {
 		boolean [] neigh = getSurroundings(PF, PR, PB, PL);
+		boolean [] agent = getSurroundings(AF, AR, AB, AL);
 		boolean flag = true;
         int k=0;
         //System.out.println(orientation+": "+neigh[0]+" "+neigh[1]+" "+neigh[2]+" "+neigh[3]);
@@ -182,16 +197,16 @@ public class Actuator {
             k = (int)(Math.random()*4);
             switch(k){
                 case 0:
-                    flag = neigh[0];
+                    flag = neigh[0]&&agent[0];
                     break;
                 case 1:
-                    flag = neigh[1];
+                    flag = neigh[1]&&agent[1];
                     break;
                 case 2:
-                    flag = neigh[2];
+                    flag = neigh[2]&&agent[2];
                     break;
                 default:
-                    flag = neigh[3];
+                    flag = neigh[3]&&agent[3];
                     break;                    
             }
         }

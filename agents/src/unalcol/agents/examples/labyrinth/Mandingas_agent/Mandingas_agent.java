@@ -10,7 +10,7 @@ import unalcol.types.collection.vector.Vector;
 * @author Cristian Rojas y Sebastian Martinez
 */
 public class Mandingas_agent implements AgentProgram{
-	
+	  protected int id;
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
 	  private Actuator actuator;
@@ -20,9 +20,10 @@ public class Mandingas_agent implements AgentProgram{
 	  public Mandingas_agent( ) {
 	  }
 
-	  public Mandingas_agent(   SimpleLanguage _language  ) {
+	  public Mandingas_agent(   SimpleLanguage _language, int _id  ) {
 		  language = _language;
 		  actuator = new Actuator();
+		  id=_id;
 	  }
 
 	  public void setLanguage(  SimpleLanguage _language ){
@@ -61,6 +62,14 @@ public class Mandingas_agent implements AgentProgram{
 	          booleanValue();
 	      boolean FAIL = ( (Boolean) p.getAttribute(language.getPercept(5))).
 	              booleanValue();
+	      boolean AF = ( (Boolean) p.getAttribute(language.getPercept(6))).
+		          booleanValue();
+	      boolean AR = ( (Boolean) p.getAttribute(language.getPercept(7))).
+	          booleanValue();
+	      boolean AB = ( (Boolean) p.getAttribute(language.getPercept(8))).
+	          booleanValue();
+	      boolean AL = ( (Boolean) p.getAttribute(language.getPercept(9))).
+	          booleanValue();
 	      boolean FOOD = ( (Boolean) p.getAttribute(language.getPercept(10))).
 	              booleanValue();
 	      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
@@ -71,8 +80,10 @@ public class Mandingas_agent implements AgentProgram{
 		  }
 	      lastEnergy=energy;
 	      //Defines the kind of task the actuator is going to make, for now is random
-	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, FOOD, energy, isGood);
+	      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
 	      
+	      System.out.println("-----------------------"+"\n"+"id: "+id);
+	      //System.out.println(AF+" "+AR+" "+AB+" "+AL+"\n");
 	      if (0 <= d && d < 4) {
 	        directions(d); //Sets the directions
 	      }else if(d == 4) {
@@ -86,7 +97,7 @@ public class Mandingas_agent implements AgentProgram{
 	    
 	    //Updates the coordinates
 	    if(x.equals(language.getAction(2))) { 
-	       actuator.changeCoordinates(false); 
+	       actuator.changeCoordinates(true); 
 	    }
 	    ate=x.equals(language.getAction(4));
 	    return new Action(x);
