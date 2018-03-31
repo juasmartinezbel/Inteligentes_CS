@@ -56,23 +56,23 @@ public class Actuator {
 	 * 
 	 * @param print defines if we want to print the coordinates for convinence
 	 */
-	public void changeCoordinates(boolean print) {
+	public void changeCoordinates(boolean print, int id) {
 		switch(orientation) {
 		case(0):
 			y--;
-			if(print) System.out.println("X: "+x+"| Y: "+y);
+			if(print) System.out.println("---------\nid: "+id+"\nX: "+x+"| Y: "+y+"\n");
 			break;
 		case(1):
 			x++;
-			if(print) System.out.println("X: "+x+" | Y: "+y);
+			if(print) System.out.println("---------\nid: "+id+"\nX: "+x+" | Y: "+y+"\n");
 			break;
 		case(2):
 			y++;
-			if(print) System.out.println("X: "+x+" | Y: "+y);
+			if(print) System.out.println("---------\nid: "+id+"\nX: "+x+" | Y: "+y+"\n");
 			break;
 		case(3):
 			x--;
-			if(print) System.out.println("X: "+x+" | Y: "+y);
+			if(print) System.out.println("---------\nid: "+id+"\nX: "+x+" | Y: "+y+"\n");
 			break;
 		default:
 			System.out.println("Error de Programa");
@@ -123,7 +123,7 @@ public class Actuator {
 		}
 		
 		//Changes the state when the the agent is hungry
-		if(energy < 18 && !lookingForFood) {
+		if(energy < 20 && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(path != null) {
 				lookingForFood = true;
@@ -132,8 +132,8 @@ public class Actuator {
 		}
 		
 		if(path== null || path.size()==0) {
-			map.checkPending();
 			path = map.nearestUnexplored(x, y);
+			map.checkPending();
 			//System.out.println("Searching..");
 		}
 		
@@ -141,22 +141,24 @@ public class Actuator {
 		//Follow a path when path has a path 
 		if(path!= null && path.size() > 0) {
 			int u = path.poll();
+			int v=u;
+			
+			//If the path is blocked, then we evaluate what kind of action should be taken.
 			if(isAgent[u]) {
-				System.out.println(u);
 				path=map.alternativeRoute(x, y, u, lookingForFood);
 				if(path!= null && path.size() > 0) {
 					u = path.poll();
-				}else {
-					int v=u;
-					while(u!=v) {
-						u=search(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy);
+					if(u==v) {
+						u=-2;
 					}
+				}else {
+					u=-2;
 				}
 			}
 			return u; 
 		}
 
-		return search(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy); 
+		return -2; 
 	}
 	
 	/**
@@ -250,6 +252,12 @@ public class Actuator {
 			System.exit(-1);
 		}
 		return u;
+	}
+	
+	public void resetMap() {
+		map.clear();
+		path.clear();
+		//System.out.println("SE BORRÓ TODO TODILLO");
 	}
 		
 }
