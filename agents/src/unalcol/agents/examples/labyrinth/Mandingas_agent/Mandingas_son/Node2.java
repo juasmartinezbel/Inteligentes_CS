@@ -14,11 +14,15 @@ public class Node2 {
 	
 	public Node2(Integer x, Integer y, boolean [] neighbors) {
 		this.neighbors = new LinkedList<String>();
+		setNeighbors(x, y, neighbors);
+	}
+	
+	public void setNeighbors(Integer x, Integer y, boolean [] neighbors){
+		this.neighbors.clear();
 		if(!neighbors[0]) this.neighbors.add(hashFunction(x,y-1));
 		if(!neighbors[1]) this.neighbors.add(hashFunction(x+1,y));
 		if(!neighbors[2]) this.neighbors.add(hashFunction(x,y+1));
 		if(!neighbors[3]) this.neighbors.add(hashFunction(x-1,y));
-		
 	}
 	
 	public LinkedList<String> nodeNeighbors(){

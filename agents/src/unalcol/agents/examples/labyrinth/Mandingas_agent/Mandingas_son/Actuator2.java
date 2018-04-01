@@ -19,7 +19,10 @@ public class Actuator2 {
 	
 	private boolean keepEating;
 	private boolean lookingForFood;
-	private boolean tryFood;
+	private int tryFood;
+	private boolean ratherWait;
+	
+	private boolean rivalAlive;
 	
 	Actuator2(){		
 		x = 0;
@@ -28,7 +31,13 @@ public class Actuator2 {
 		map = new Map2();
 		keepEating=false;
 		lookingForFood = false;
-		tryFood=true;
+		tryFood=0;
+		ratherWait=false;
+		/*
+		 * 0->Looking for first food
+		 * 1->Being careful
+		 * 2->Now can eat without worries
+		 */
 	}
 	
 	/**
@@ -83,6 +92,22 @@ public class Actuator2 {
 	}
 	
 	/**
+	 * Adds/edits a new node;
+	 * @param walls
+	 */
+	public void addNode(boolean [] walls){
+		Node2 current;
+		
+		if(map.contains(x, y)) {
+			current=map.node(x, y);
+			current.setNeighbors(x, y, walls);
+		}else {
+			current = new Node2(x, y, walls);
+		}
+		map.add(x, y, current);
+	}
+	
+	/**
 	 * 
 	 * Defines the tasks the agent is going to make, whether is to move or eat. Also sets if the food was bad
 	 * 
@@ -91,35 +116,34 @@ public class Actuator2 {
 	 * 
 	 */
 	public int task(boolean PF, boolean PR, boolean PB, boolean PL, boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isGood) {
-		boolean [] isAgent = getSurroundings(AF, AR, AB, AL);
+
 		if (MT) return -1;
 		
-		//Add the the node if its not contained 
-		if(!map.contains(x, y)) {
-			Node2 current = new Node2(x, y, getSurroundings(PF, PR, PB, PL));
-			map.add(x, y, current);
-		}	
-		
-
-		
-
+		boolean [] isAgent = getSurroundings(AF, AR, AB, AL);
+		boolean [] isWalls = getSurroundings(PF, PR, PB, PL);
+		//Add the the node depending on the circustances
+		addNode(isWalls);
 		//Each time the agent finds food it recharge the energy and update the map
 		if(FOOD) {
 			lookingForFood = false;
 			Node2 thisNode=map.node(x, y);
-			if(!thisNode.isFood()&&tryFood) {	
-				tryFood = Math.random() < 0.5;
-				thisNode.thisIsFood();
-				map.add(x, y, thisNode);
+			if(!thisNode.isFood()) {	
+				if(tryFood%2==0) {
+					thisNode.thisIsFood();
+					map.add(x, y, thisNode);
+					
+					if(tryFood!=2)
+						tryFood = (int)(Math.random()*4);
+				}
 				return 4;
 			}
 			if(isGood || thisNode.isGoodFood()) {
+				tryFood=2;
 				if(!thisNode.isGoodFood()) {
 					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);
 				}
 				if (((energy < 39) || keepEating)) {
-					
 					keepEating=true;
 					return eat(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
 				}
@@ -130,14 +154,15 @@ public class Actuator2 {
 		if(energy < 20 && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(!path.isEmpty()) {
-				tryFood=true;
 				lookingForFood = true;
 				//System.out.println("lookingForFood..");
 			}
 		}
 		
 		if(path== null || path.size()==0) {
+			
 			path = map.nearestUnexplored(x, y);
+			rivalAlive=!map.checkCoincidence();
 			map.checkPending();
 			//System.out.println("Searching..");
 		}
@@ -145,20 +170,28 @@ public class Actuator2 {
 		
 		//Follow a path when path has a path 
 		if(path!= null && path.size() > 0) {
-			int u = path.poll();
+			int u = path.peek();
 			int v=u;
 			
 			//If the path is blocked, then we evaluate what kind of action should be taken.
-			if(isAgent[u]) {
-				path=map.alternativeRoute(x, y, u, lookingForFood);
-				if(path!= null && path.size() > 0) {
-					u = path.poll();
+			if(isAgent[u] || isWalls[u]) {
+				//Let's first check if there isn't any route we should take care of
+				rivalAlive=!map.checkCoincidence();
+				map.checkPending();
+				Queue <Integer> tmpPath=map.alternativeRoute(x, y, u, lookingForFood, isWalls[u]);
+				if(tmpPath!= null && tmpPath.size() > 0) {
+					u = tmpPath.peek();
 					if(u==v) {
 						u=-2;
+					}else{
+						path=tmpPath;
+						u=path.poll();
 					}
-				}else {
+				}else{
 					u=-2;
 				}
+			}else {
+				path.poll();
 			}
 			return u; 
 		}
@@ -238,6 +271,7 @@ public class Actuator2 {
 		 * 3 -> West
 		 * 
 		 */
+		
 		boolean [] u = new boolean [4];
 		switch(orientation) {
 		case(0):
@@ -260,9 +294,21 @@ public class Actuator2 {
 	}
 	
 	public void resetMap() {
+		lookingForFood=false;
 		map.clear();
 		path.clear();
-		//System.out.println("SE BORRÓ TODO TODILLO");
 	}
+	
+	public void killRival() {
+		rivalAlive=false;
+	}
+	
+	public boolean rivalIsAlive() {
+		return rivalAlive;
+	}
+	/*
+	 * TODO constant checker i'm in the right map judging if there is food in the corresponding place or not
+	 * 
+	 */
 		
 }

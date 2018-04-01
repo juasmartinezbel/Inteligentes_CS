@@ -52,11 +52,7 @@ public class Mandingas_agent2 implements AgentProgram{
 	   * @return Action[]
 	   */
 	  public Action compute(Percept p){
-		  
-		
 		if( cmd.size() == 0 ) {
-			int d = -2; 
-			while (d==-2){
 		      boolean PF = ( (Boolean) p.getAttribute(language.getPercept(0))).
 		          booleanValue();
 		      boolean PR = ( (Boolean) p.getAttribute(language.getPercept(1))).
@@ -83,6 +79,9 @@ public class Mandingas_agent2 implements AgentProgram{
 		      
 		      if(!rival) {
 		    	  PF=PF||AF;
+		    	  PR=PR||AR;
+		    	  PB=PB||AB;
+		    	  PL=PL||AL;
 		      }
 		      boolean isGood=false;
 		      if(ate) {
@@ -97,48 +96,43 @@ public class Mandingas_agent2 implements AgentProgram{
 		       * 0: die
 		       * 
 		       */
-		      d = actuator.task(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
-		      
-		      //System.out.println("-----------------------"+"\n"+"id: "+id+"\nd fue igual a "+d);
-		      //System.out.println(AF+" "+AR+" "+AB+" "+AL+"\n");
-	      	  if (0 <= d && d < 4) {
+		      int d = actuator.task(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
+		      if (0 <= d && d < 4) {
 		        directions(d); //Sets the directions
 		      }else if(d == 4) {
 		    	cmd.add(language.getAction(4));  //eat
 		      }else if(d==-2) {
-		    	 counter++;
-		    	if(counter>50) {
-	      		  actuator.resetMap();
-	      		  rival=false;
-	      	  	}
+		        counter++;
+		    	actuator.addNode(actuator.getSurroundings(PF, PR, PB, PL));
 			    cmd.clear();
+			    cmd.add(language.getAction(0));
 		      }else{
-		    	//If the path returned "wait"
 		    	cmd.add(language.getAction(0)); // die
 		      }
 		    }
-			
-	    }
-		counter=0;
+		rival=rival&&actuator.rivalIsAlive();
 	    String x = cmd.get(0);
 	    cmd.remove(0);
 	    
 	    //Updates the coordinates
 	    if(x.equals(language.getAction(2))) {
-	    	
 	    	//Last second check, if a wall and/or an agent appeared, then we tell the agent to do nothing
 	    	boolean AF=!((Boolean) p.getAttribute(language.getPercept(6))).booleanValue();
 	    	boolean PF=!((Boolean) p.getAttribute(language.getPercept(0))).booleanValue();
 	    	if(AF && PF) {
 	    		actuator.changeCoordinates(false, id);
 	    	}else{
-	    		//System.out.println(id+" no pudo darse el lujo de avanzar");
 	    		cmd.clear();
 	    		x=language.getAction(0);
 	    	}
 	    }
 	    ate=x.equals(language.getAction(4));
-	    
+	    counter=x.equals(language.getAction(0)) ? counter++ : 0;
+	    if(counter>15) {
+	    	actuator.resetMap();
+    		rival=false;
+    		counter=0;
+	    }
 	    return new Action(x);
 	  }  
 	  
