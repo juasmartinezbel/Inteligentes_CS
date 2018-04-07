@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
+package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
 
 import java.util.HashMap;
 import java.util.Queue;
@@ -6,11 +6,11 @@ import java.util.Queue;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Actuator2 {
+public class Actuator {
 	
 	private static int MINIMUN_SIZE = 5;
 	
-	private Map2 map;
+	private Map map;
 	private Integer x;
 	private Integer y;
 	private Integer orientation;
@@ -24,15 +24,18 @@ public class Actuator2 {
 	
 	private boolean rivalAlive;
 	
-	Actuator2(){		
+	public int maxHealth;
+	
+	Actuator(){		
 		x = 0;
 		y = 0;
 		orientation = 0;
-		map = new Map2();
+		map = new Map();
 		keepEating=false;
 		lookingForFood = false;
 		tryFood=0;
 		ratherWait=false;
+		maxHealth=Integer.MAX_VALUE;
 		/*
 		 * 0->Looking for first food
 		 * 1->Being careful
@@ -46,6 +49,11 @@ public class Actuator2 {
 	 */
 	public int getOrientation() {
 		return orientation;
+	}
+	
+	
+	public void setMaxHealth(int _maxHealth) {
+		maxHealth=_maxHealth;
 	}
 	
 	/**
@@ -96,13 +104,13 @@ public class Actuator2 {
 	 * @param walls
 	 */
 	public void addNode(boolean [] walls){
-		Node2 current;
+		Node current;
 		
 		if(map.contains(x, y)) {
 			current=map.node(x, y);
 			current.setNeighbors(x, y, walls);
 		}else {
-			current = new Node2(x, y, walls);
+			current = new Node(x, y, walls);
 		}
 		map.add(x, y, current);
 	}
@@ -126,7 +134,7 @@ public class Actuator2 {
 		//Each time the agent finds food it recharge the energy and update the map
 		if(FOOD) {
 			lookingForFood = false;
-			Node2 thisNode=map.node(x, y);
+			Node thisNode=map.node(x, y);
 			if(!thisNode.isFood()) {	
 				if(tryFood%2==0) {
 					thisNode.thisIsFood();
@@ -143,7 +151,7 @@ public class Actuator2 {
 					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);
 				}
-				if (((energy < 39) || keepEating)) {
+				if (((energy < (maxHealth-1)) || keepEating)) {
 					keepEating=true;
 					return eat(PF, PR, PB, PL, MT, FAIL, AF, AR, AB, AL, FOOD, energy, isGood);
 				}
@@ -151,7 +159,7 @@ public class Actuator2 {
 		}
 		
 		//Changes the state when the the agent is hungry
-		if(energy < 20 && !lookingForFood) {
+		if(energy < (maxHealth/2) && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(!path.isEmpty()) {
 				lookingForFood = true;
@@ -208,7 +216,7 @@ public class Actuator2 {
 	 * 
 	 */
 	public int eat(boolean PF, boolean PR, boolean PB, boolean PL,  boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isBad) {
-		Node2 thisNode=map.node(x, y);
+		Node thisNode=map.node(x, y);
 		boolean shouldEat=thisNode.isGoodFood();
 		
 		if(shouldEat) {

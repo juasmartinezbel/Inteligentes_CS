@@ -1,35 +1,34 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
+package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
 
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
-import unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son.*;
-import unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_agent;
 import unalcol.agents.simulate.util.SimpleLanguage;
 import unalcol.types.collection.vector.Vector;
 
-public class Mandingas_agent2 implements AgentProgram{
+public class Mandingas_agent implements AgentProgram{
 	  protected int id=0;
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
-	  protected Actuator2 actuator;
+	  protected Actuator actuator;
 	  private boolean ate=false;
 	  private int lastEnergy=0;
 	  private int counter=0;
 	  private boolean rival = true;
+	  private boolean mhInput = false;
 	  
-	  public Mandingas_agent2( ) {
+	  public Mandingas_agent( ) {
 	  }
 
-	  public Mandingas_agent2(   SimpleLanguage _language, int _id  ) {
+	  public Mandingas_agent(   SimpleLanguage _language, int _id  ) {
 		  language = _language;
-		  actuator = new Actuator2();
+		  actuator = new Actuator();
 		  id=_id;
 	  }
 	  
-	  public Mandingas_agent2(   SimpleLanguage _language ) {
+	  public Mandingas_agent(   SimpleLanguage _language ) {
 		  language = _language;
-		  actuator = new Actuator2();
+		  actuator = new Actuator();
 	  }
 
 	  public void setLanguage(  SimpleLanguage _language ){
@@ -38,7 +37,7 @@ public class Mandingas_agent2 implements AgentProgram{
 
 	  public void init(){
 	    cmd.clear();
-	    actuator = new Actuator2();
+	    actuator = new Actuator();
 	    ate=false;
 		lastEnergy=0;
 	  }
@@ -86,6 +85,10 @@ public class Mandingas_agent2 implements AgentProgram{
 		      boolean isGood=false;
 		      if(ate) {
 		    	  isGood=lastEnergy<=energy;
+		    	  if(lastEnergy==energy && !mhInput){
+					  actuator.setMaxHealth(energy);
+					  mhInput=true;					  
+				  }
 			  }
 		      lastEnergy=energy;
 		      //Defines the kind of task the actuator is going to make, for now is random

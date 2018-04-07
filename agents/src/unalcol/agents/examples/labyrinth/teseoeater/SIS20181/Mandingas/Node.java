@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
+package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
 
 import static unalcol.agents.examples.labyrinth.Mandingas_agent.Map.*;
 import java.util.LinkedList;
@@ -7,12 +7,12 @@ import java.util.LinkedList;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Node2 {
+public class Node {
 	private LinkedList<String> neighbors;
 	private boolean food=false;
 	private boolean goodFood=false;
 	
-	public Node2(Integer x, Integer y, boolean [] neighbors) {
+	public Node(Integer x, Integer y, boolean [] neighbors) {
 		this.neighbors = new LinkedList<String>();
 		setNeighbors(x, y, neighbors);
 	}

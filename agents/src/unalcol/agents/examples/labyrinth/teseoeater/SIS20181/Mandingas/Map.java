@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent.Mandingas_son;
+package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,15 +11,15 @@ import java.util.Stack;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Map2 {
-	private HashMap<String, Node2> map;
+public class Map {
+	private HashMap<String, Node> map;
 	private boolean pending=false;
 	private String nodePending="";
 	private String keyPending="";
 	private String lastKey="";
 	
-	public Map2() {
-		map = new HashMap<String, Node2>();
+	public Map() {
+		map = new HashMap<String, Node>();
 	}	
 	
 	public static String hashFunction(Integer x, Integer y) {
@@ -30,11 +30,11 @@ public class Map2 {
 		return map.size();
 	}
 	
-	public void add(Integer x, Integer y, Node2 node) {
+	public void add(Integer x, Integer y, Node node) {
 		map.put(hashFunction(x, y), node);
 	}
 	
-	public Node2 node(Integer x, Integer y) {
+	public Node node(Integer x, Integer y) {
 		return map.get(hashFunction(x, y));
 	}
 	
@@ -171,7 +171,7 @@ public class Map2 {
 		
 		//Checks if the node is visited or if it is one that should be explored
 		if(map.containsKey(bye)) {
-			Node2 tmpNode= map.get(bye);
+			Node tmpNode= map.get(bye);
 			map.remove(bye);
 			if(lookingForFood) {
 				newPath=nearestFood(x, y);
@@ -202,7 +202,7 @@ public class Map2 {
 	 */
 	public Queue<Integer> hideNeighbor(Integer x, Integer y, String bye, boolean isWall) {
 		String tmpKey=hashFunction(x,y);
-		Node2 tmpNode= map.get(tmpKey);
+		Node tmpNode= map.get(tmpKey);
 		if(!isWall) {
 			nodePending=bye;
 			keyPending=tmpKey;
@@ -216,7 +216,7 @@ public class Map2 {
 	
 	public void checkPending() {
 		if(pending&&!keyPending.equals("")) {
-			Node2 p = map.get(keyPending);
+			Node p = map.get(keyPending);
 			p.addNeighbor(nodePending);
 			map.put(keyPending,p);
 			lastKey=keyPending;
