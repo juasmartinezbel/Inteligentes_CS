@@ -75,6 +75,8 @@ public class Mandingas_agent implements AgentProgram{
 		      boolean FOOD = ( (Boolean) p.getAttribute(language.getPercept(10))).
 		              booleanValue();
 		      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
+		      if(FAIL)
+		    	  actuator.hardReset();
 		      
 		      if(!rival) {
 		    	  PF=PF||AF;

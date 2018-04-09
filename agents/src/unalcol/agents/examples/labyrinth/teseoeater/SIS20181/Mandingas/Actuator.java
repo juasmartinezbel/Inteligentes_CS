@@ -303,7 +303,15 @@ public class Actuator {
 	
 	public void resetMap() {
 		lookingForFood=false;
-		map.clear();
+		map.clear(false);
+		path.clear();
+	}
+	
+	public void hardReset() {
+		x = 0;
+		y = 0;
+		lookingForFood=false;
+		map.clear(true);
 		path.clear();
 	}
 	

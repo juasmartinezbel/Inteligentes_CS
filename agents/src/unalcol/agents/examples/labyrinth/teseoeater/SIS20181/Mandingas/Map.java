@@ -242,12 +242,16 @@ public class Map {
 	 * Clears the map if the Agent is stuck, except for the nodes that have food.
 	 * 
 	 */
-	public void clear() {
-		LinkedList <String> S = new LinkedList<String>();
-		S.addAll(map.keySet());
-		for(String s : S) {
-			if(!map.get(s).isFood()) {
-				map.remove(s);
+	public void clear(boolean isHard) {
+		if(isHard) {
+			map.clear();
+		}else {
+			LinkedList <String> S = new LinkedList<String>();
+			S.addAll(map.keySet());
+			for(String s : S) {
+				if(!map.get(s).isFood()) {
+					map.remove(s);
+				}
 			}
 		}
 		pending=false;
