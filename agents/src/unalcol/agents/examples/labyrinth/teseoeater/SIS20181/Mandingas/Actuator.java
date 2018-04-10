@@ -9,7 +9,7 @@ import java.util.Queue;
 public class Actuator {
 	
 	private static int MINIMUN_SIZE = 5;
-	private static final double MAX_REACH=66.0;
+	private static final double MAX_REACH=65.0;
 	private Map map;
 	private Integer x;
 	private Integer y;
@@ -162,7 +162,7 @@ public class Actuator {
 		
 		//Changes the state when the the agent is hungry
 		float fraction = (float) (reach/100.0);
-		if(energy < (maxHealth*(fraction)) && !lookingForFood) {
+		if(energy < ((int)(maxHealth*(fraction))) && !lookingForFood) {
 			path = map.nearestFood(x, y);
 			if(!path.isEmpty()) {
 				lookingForFood = true;
@@ -227,7 +227,7 @@ public class Actuator {
 			if(!keepEating) {
 				String meal = map.hashFunction(x,y);
 				if(lastMeal.equals(meal)) {
-					reach-=2.0;
+					reach-=5.0;
 				}else {
 					lastMeal=meal;
 					reach=MAX_REACH;
