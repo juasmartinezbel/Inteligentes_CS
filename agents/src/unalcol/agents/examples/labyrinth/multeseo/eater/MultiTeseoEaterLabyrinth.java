@@ -109,7 +109,7 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
 	          updateViews(msg);
 	          break;
 	        default:
-	          if( actionID == 2 ){
+	          if( actionID == 2 ||  actionID == 3){
 	            agent_energy_level[i]--;
 	          }
 	          if( actionID != 2 || !((Boolean) p.getAttribute("afront")).booleanValue() ) super.act(agent, action);
