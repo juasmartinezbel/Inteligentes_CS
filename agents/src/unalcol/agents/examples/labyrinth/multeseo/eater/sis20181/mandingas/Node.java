@@ -1,6 +1,5 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent;
+package unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas;
 
-import static unalcol.agents.examples.labyrinth.Mandingas_agent.Map.*;
 import java.util.LinkedList;
 
 /**
@@ -14,11 +13,19 @@ public class Node {
 	
 	public Node(Integer x, Integer y, boolean [] neighbors) {
 		this.neighbors = new LinkedList<String>();
+		setNeighbors(x, y, neighbors);
+	}
+	
+	public void setNeighbors(Integer x, Integer y, boolean [] neighbors){
+		this.neighbors.clear();
 		if(!neighbors[0]) this.neighbors.add(hashFunction(x,y-1));
 		if(!neighbors[1]) this.neighbors.add(hashFunction(x+1,y));
 		if(!neighbors[2]) this.neighbors.add(hashFunction(x,y+1));
 		if(!neighbors[3]) this.neighbors.add(hashFunction(x-1,y));
-		
+	}
+	
+	public static String hashFunction(Integer x, Integer y) {
+		return (String.valueOf(x) +","+ String.valueOf(y));
 	}
 	
 	public LinkedList<String> nodeNeighbors(){

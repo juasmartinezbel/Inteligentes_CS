@@ -1,9 +1,11 @@
-package unalcol.agents.examples.labyrinth.Mandingas_agent;
+package unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 /**
 *
@@ -14,18 +16,8 @@ public class Map {
 	private boolean pending=false;
 	private String nodePending="";
 	private String keyPending="";
+	private String lastKey="";
 	
-	public void checkPending() {
-		if(pending&&!keyPending.equals("")) {
-			//System.out.println("Going back to normal");
-			Node p = map.get(keyPending);
-			p.addNeighbor(nodePending);
-			map.put(keyPending,p);
-			nodePending="";
-			keyPending="";
-		}
-		pending=false;
-	}
 	public Map() {
 		map = new HashMap<String, Node>();
 	}	
@@ -101,7 +93,6 @@ public class Map {
 	}
 	
 	public Queue<Integer> nearestUnexplored(Integer x, Integer y){
-		
 		Queue<String> q = new LinkedList <String> ();
 		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
@@ -110,25 +101,41 @@ public class Map {
 		checked.put(hashFunction(x, y), path);
 
 		while(q.size()!=0) {			
-			String node = q.poll();			
-
-				
+			String node = q.poll();
+			
 			if(!map.containsKey(node)) {
 				return checked.get(node);
 			}
+			LinkedList<String> ls= map.get(node).getNeighbors();
+			LinkedList<String> notVisited = new LinkedList<String>();
 			
-			for (String neighbor : map.get(node).getNeighbors()) {
+			
+			for (String neighbor:ls) {
+				if(!map.containsKey(neighbor))
+					notVisited.add(neighbor);		
+			}
+			
+			if(!notVisited.isEmpty()) {
+				ls=rearrange(notVisited);
+			}
+			
+			for (String neighbor:ls) {
 				if(!checked.containsKey(neighbor)) {
 					q.add(neighbor);
 					path = new LinkedList <Integer> (checked.get(node));
 					path.add(getProximity(neighbor, node));
 					checked.put(neighbor, path);					
 				}
-			}		
+			}	
+			
 		}
 		return new LinkedList <Integer>();
 	}
 	
+	public LinkedList<String> rearrange(LinkedList<String> n){
+		Collections.shuffle(n);
+		return n;
+	}
 	
 	/**
 	 * 
@@ -140,7 +147,7 @@ public class Map {
 	 * @param lookingForFood Defines what kind of search should be done
 	 * @return
 	 */
-	public Queue<Integer> alternativeRoute(Integer x, Integer y, int agent, boolean lookingForFood){
+	public Queue<Integer> alternativeRoute(Integer x, Integer y, int agent, boolean lookingForFood, boolean isWall){
 		Queue<Integer> newPath;
 		
 		int x_next=x;
@@ -168,22 +175,20 @@ public class Map {
 			map.remove(bye);
 			if(lookingForFood) {
 				newPath=nearestFood(x, y);
-				if(newPath.isEmpty()) {
-					newPath=hideNeighbor(x,y,bye);
-				}
 			}else {
-				newPath=hideNeighbor(x,y,bye);
+				newPath=hideNeighbor(x,y,bye, isWall);
 			}
-			//System.out.println("Se ha removido: "+bye+" que era el paso "+agent+". Ahora el agenta dará un paso en la dirección "+newPath.peek());
-			map.put(bye, tmpNode);
+			if(!isWall)
+				map.put(bye, tmpNode);
 		}else{
-			newPath=hideNeighbor(x,y,bye);
+			newPath=hideNeighbor(x,y,bye, isWall);
 		}
 		
 		//If the path in empty, we return that there is no other choice but that path, then the agent should wait
 		if (newPath.isEmpty()) {
 			newPath.add(agent);
 		}
+		
 		return newPath;
 	}
 	
@@ -192,21 +197,63 @@ public class Map {
 	 * @param x
 	 * @param y
 	 * @param bye
+	 * @param isWall verifies if the thing blocking is a wall
 	 * @return
 	 */
-	public Queue<Integer> hideNeighbor(Integer x, Integer y, String bye) {
+	public Queue<Integer> hideNeighbor(Integer x, Integer y, String bye, boolean isWall) {
 		String tmpKey=hashFunction(x,y);
 		Node tmpNode= map.get(tmpKey);
-		nodePending=bye;
-		keyPending=tmpKey;
+		if(!isWall) {
+			nodePending=bye;
+			keyPending=tmpKey;
+			pending=true;
+		}
 		tmpNode.removeNeighbor(bye);
 		map.put(tmpKey,tmpNode);
-		pending=true;
+		
 		return nearestUnexplored(x, y);
 	}
 	
-	public void clear() {
-		map.clear();
+	public void checkPending() {
+		if(pending&&!keyPending.equals("")) {
+			Node p = map.get(keyPending);
+			p.addNeighbor(nodePending);
+			map.put(keyPending,p);
+			lastKey=keyPending;
+			nodePending="";
+			keyPending="";
+		}
+		pending=false;
+	}
+	
+	/**
+	 * Checks one last time if we get to the point to see if the rival is dead
+	 * @return
+	 */
+	public boolean checkCoincidence() {
+		if(!keyPending.equals("")) {
+			return keyPending.equals(lastKey);
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Clears the map if the Agent is stuck, except for the nodes that have food.
+	 * 
+	 */
+	public void clear(boolean isHard) {
+		if(isHard) {
+			map.clear();
+		}else {
+			LinkedList <String> S = new LinkedList<String>();
+			S.addAll(map.keySet());
+			for(String s : S) {
+				if(!map.get(s).isFood()) {
+					map.remove(s);
+				}
+			}
+		}
 		pending=false;
 		nodePending="";
 		keyPending="";
