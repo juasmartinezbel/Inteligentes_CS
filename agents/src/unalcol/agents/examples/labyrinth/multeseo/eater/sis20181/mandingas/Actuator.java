@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas;
 
 import java.util.HashMap;
 import java.util.Queue;

@@ -4,9 +4,8 @@ import unalcol.agents.Agent;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.examples.labyrinth.Labyrinth;
 //import unalcol.agents.examples.labyrinth.Mandingas_agent.*;
-import unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas.*;
+import unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas.*;
 import unalcol.agents.examples.labyrinth.LabyrinthDrawer;
-import unalcol.agents.examples.labyrinth.teseo.simple.RandomReflexTeseo;
 import unalcol.agents.simulate.util.SimpleLanguage;
 import unalcol.types.collection.vector.Vector;
 

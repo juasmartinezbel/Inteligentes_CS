@@ -1,6 +1,5 @@
-package unalcol.agents.examples.labyrinth.teseoeater.SIS20181.Mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas;
 
-import static unalcol.agents.examples.labyrinth.Mandingas_agent.Map.*;
 import java.util.LinkedList;
 
 /**
@@ -23,6 +22,10 @@ public class Node {
 		if(!neighbors[1]) this.neighbors.add(hashFunction(x+1,y));
 		if(!neighbors[2]) this.neighbors.add(hashFunction(x,y+1));
 		if(!neighbors[3]) this.neighbors.add(hashFunction(x-1,y));
+	}
+	
+	public static String hashFunction(Integer x, Integer y) {
+		return (String.valueOf(x) +","+ String.valueOf(y));
 	}
 	
 	public LinkedList<String> nodeNeighbors(){
