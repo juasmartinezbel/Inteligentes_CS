@@ -1,15 +1,15 @@
-package unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas;
 
 import java.util.Queue;
 /**
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Actuator {
+public class Actuator2 {
 	
 	private static final double MAX_REACH=50.0; 
 	
-	private Map map;
+	private Map2 map;
 	private Integer x;
 	private Integer y;
 	private Integer orientation;	
@@ -17,6 +17,7 @@ public class Actuator {
 	
 	private boolean keepEating;
 	private boolean lookingForFood;
+	private int tryFood;
 	
 	private boolean rivalAlive;
 	
@@ -24,13 +25,14 @@ public class Actuator {
 	private double reach;
 	public int maxHealth;
 	
-	Actuator(){		
+	Actuator2(){		
 		x = 0;
 		y = 0;
 		orientation = 0;
-		map = new Map();
+		map = new Map2();
 		keepEating=false;
 		lookingForFood = false;
+		tryFood=0;
 		maxHealth=Integer.MAX_VALUE;
 		reach=MAX_REACH;
 		/*
@@ -101,13 +103,13 @@ public class Actuator {
 	 * @param walls
 	 */
 	public void addNode(boolean [] walls){
-		Node current;
+		Node2 current;
 		
 		if(map.contains(x, y)) {
 			current=map.node(x, y);
 			current.setNeighbors(x, y, walls);
 		}else {
-			current = new Node(x, y, walls);
+			current = new Node2(x, y, walls);
 		}
 		map.add(x, y, current);
 	}
@@ -130,13 +132,20 @@ public class Actuator {
 		//Each time the agent finds food it recharge the energy and update the map
 		if(FOOD) {
 			lookingForFood = false;
-			Node thisNode=map.node(x, y);
-			if(!thisNode.isFood()) {	
-				thisNode.thisIsFood();
-				map.add(x, y, thisNode);
-				return 4;
+			Node2 thisNode=map.node(x, y);
+			
+			if(!thisNode.isFood()) {
+				if(tryFood%2==0) {
+					thisNode.thisIsFood();
+					map.add(x, y, thisNode);
+					return 4;
+				}
+				
+				if(tryFood!=2)
+					tryFood = (int)(Math.random()*2);
 			}
 			if(isGood || thisNode.isGoodFood()) {
+				tryFood=2;
 				if(!thisNode.isGoodFood()) {
 					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);
@@ -208,7 +217,7 @@ public class Actuator {
 	 * 
 	 */
 	public int eat(boolean PF, boolean PR, boolean PB, boolean PL,  boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isBad) {
-		Node thisNode=map.node(x, y);
+		Node2 thisNode=map.node(x, y);
 		boolean shouldEat=thisNode.isGoodFood();
 		
 		if(shouldEat) {

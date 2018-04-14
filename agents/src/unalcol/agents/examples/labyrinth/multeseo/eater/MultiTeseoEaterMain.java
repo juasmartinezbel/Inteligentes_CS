@@ -5,6 +5,7 @@ import unalcol.agents.AgentProgram;
 import unalcol.agents.examples.labyrinth.Labyrinth;
 //import unalcol.agents.examples.labyrinth.Mandingas_agent.*;
 import unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas.*;
+import unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas.*;
 import unalcol.agents.examples.labyrinth.LabyrinthDrawer;
 import unalcol.agents.simulate.util.SimpleLanguage;
 import unalcol.types.collection.vector.Vector;
@@ -25,7 +26,7 @@ public class MultiTeseoEaterMain {
 	    int index2 = 1;
 	   
 	    teseo[index1] = new Mandingas_agent( getLanguage());
-	    teseo[index2] = new Mandingas_agent( getLanguage());
+	    teseo[index2] = new Mandingas_agent2( getLanguage());
 	    
 	    LabyrinthDrawer.DRAW_AREA_SIZE = 600;
 	    LabyrinthDrawer.CELL_SIZE = 40;
