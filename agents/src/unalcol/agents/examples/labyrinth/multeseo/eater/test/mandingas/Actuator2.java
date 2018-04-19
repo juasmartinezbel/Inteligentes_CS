@@ -17,7 +17,6 @@ public class Actuator2 {
 	
 	private boolean keepEating;
 	private boolean lookingForFood;
-	private int tryFood;
 	
 	private boolean rivalAlive;
 	
@@ -32,7 +31,6 @@ public class Actuator2 {
 		map = new Map2();
 		keepEating=false;
 		lookingForFood = false;
-		tryFood=0;
 		maxHealth=Integer.MAX_VALUE;
 		reach=MAX_REACH;
 		/*
@@ -133,19 +131,12 @@ public class Actuator2 {
 		if(FOOD) {
 			lookingForFood = false;
 			Node2 thisNode=map.node(x, y);
-			
 			if(!thisNode.isFood()) {
-				if(tryFood%2==0) {
-					thisNode.thisIsFood();
-					map.add(x, y, thisNode);
-					return 4;
-				}
-				
-				if(tryFood!=2)
-					tryFood = (int)(Math.random()*2);
+				thisNode.thisIsFood();
+				map.add(x, y, thisNode);
+				return 4;
 			}
 			if(isGood || thisNode.isGoodFood()) {
-				tryFood=2;
 				if(!thisNode.isGoodFood()) {
 					thisNode.thisIsGoodFood();
 					map.add(x, y, thisNode);

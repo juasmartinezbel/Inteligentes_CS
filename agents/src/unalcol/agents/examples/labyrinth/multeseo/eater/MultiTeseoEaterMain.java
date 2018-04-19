@@ -25,8 +25,8 @@ public class MultiTeseoEaterMain {
 	    int index1 = 0;
 	    int index2 = 1;
 	   
-	    teseo[index1] = new Mandingas_agent( getLanguage());
-	    teseo[index2] = new Mandingas_agent2( getLanguage());
+	    teseo[index1] = new Mandingas_agent2( getLanguage());
+	    teseo[index2] = new Mandingas_agent( getLanguage());
 	    
 	    LabyrinthDrawer.DRAW_AREA_SIZE = 600;
 	    LabyrinthDrawer.CELL_SIZE = 40;
