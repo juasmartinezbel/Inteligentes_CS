@@ -1,5 +1,6 @@
 package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas;
 
+
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
@@ -17,9 +18,9 @@ public class Mandingas_agent2 implements AgentProgram{
 	  private boolean ate=false;
 	  private int lastEnergy=0;
 	  private int counter=0;
-	  private boolean rival = true;
 	  private boolean mhInput = false;
-	  
+	  private boolean stuck = false;
+	  private String lastMove ="";
 	  public Mandingas_agent2( ) {
 	  }
 
@@ -80,12 +81,6 @@ public class Mandingas_agent2 implements AgentProgram{
 		      Integer energy = ( (Integer) p.getAttribute(language.getPercept(15)));
 		      if(FAIL)
 		    	  actuator.hardReset();
-		      if(!rival) {
-		    	  PF=PF||AF;
-		    	  PR=PR||AR;
-		    	  PB=PB||AB;
-		    	  PL=PL||AL;
-		      }
 		      boolean isGood=false;
 		      if(ate) {
 		    	  isGood=lastEnergy<=energy;
@@ -95,6 +90,7 @@ public class Mandingas_agent2 implements AgentProgram{
 				  }
 			  }
 		      lastEnergy=energy;
+
 		      //Defines the kind of task the actuator is going to make, for now is random
 		      /**
 		       * 0-3: Should rotate AND move
@@ -117,7 +113,6 @@ public class Mandingas_agent2 implements AgentProgram{
 		    	cmd.add(language.getAction(0)); // die
 		      }
 		    }
-		rival=rival&&actuator.rivalIsAlive();
 	    String x = cmd.get(0);
 	    cmd.remove(0);
 	    
@@ -137,9 +132,9 @@ public class Mandingas_agent2 implements AgentProgram{
 	    counter=x.equals(language.getAction(0)) ? counter++ : 0;
 	    if(counter>15) {
 	    	actuator.resetMap();
-    		rival=false;
     		counter=0;
 	    }
+	    lastMove=x;
 	    return new Action(x);
 	  }  
 	  

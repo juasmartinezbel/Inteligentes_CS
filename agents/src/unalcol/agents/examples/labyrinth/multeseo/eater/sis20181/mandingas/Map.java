@@ -60,7 +60,6 @@ public class Map {
 	}
 	
 	public Queue<Integer> nearestFood(Integer x, Integer y) {
-		
 		Queue<String> q = new LinkedList <String> ();
 		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
@@ -171,6 +170,7 @@ public class Map {
 		
 		//Checks if the node is visited or if it is one that should be explored
 		if(map.containsKey(bye)) {
+			
 			Node tmpNode= map.get(bye);
 			map.remove(bye);
 			if(lookingForFood) {
@@ -243,6 +243,8 @@ public class Map {
 	 * 
 	 */
 	public void clear(boolean isHard) {
+		String level = isHard ? "HARD" : "SOFT";
+		System.out.println("RESETING, LEVEL "+level);
 		if(isHard) {
 			map.clear();
 		}else {
