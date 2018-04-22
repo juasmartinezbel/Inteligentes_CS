@@ -16,7 +16,6 @@ public class Actuator2 {
 	private Integer y;
 	private Integer orientation;	
 	private Queue<Integer> path;
-	private int lastMove;
 	
 	private boolean keepEating;
 	private boolean lookingForFood;
@@ -35,7 +34,6 @@ public class Actuator2 {
 		maxHealth=Integer.MAX_VALUE;
 		reach=MAX_REACH;
 		path= new LinkedList<Integer>();
-		lastMove=-2;
 		/*
 		 * 0->Looking for first food
 		 * 1->Being careful
@@ -305,7 +303,6 @@ public class Actuator2 {
 		if(!lookingForFood) {
 			map.clear(false);
 		}
-		lastMove=path.peek();
 		path.clear();
 		//lookingForFood=false;
 	}
