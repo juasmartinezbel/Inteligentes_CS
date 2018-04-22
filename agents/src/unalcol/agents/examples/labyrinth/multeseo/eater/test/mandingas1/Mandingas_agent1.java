@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas1;
 
 
 import unalcol.agents.Action;
@@ -10,29 +10,29 @@ import unalcol.types.collection.vector.Vector;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Mandingas_agent2 implements AgentProgram{
+public class Mandingas_agent1 implements AgentProgram{
 	  protected int id=0;
 	  protected SimpleLanguage language;
 	  protected Vector<String> cmd = new Vector<String>();
-	  protected Actuator2 actuator;
+	  protected Actuator1 actuator;
 	  private boolean ate=false;
 	  private int lastEnergy=0;
 	  private int counter=0;
 	  private boolean mhInput = false;
 	  private boolean stuck = false;
 	  private String lastMove ="";
-	  public Mandingas_agent2( ) {
+	  public Mandingas_agent1( ) {
 	  }
 
-	  public Mandingas_agent2(   SimpleLanguage _language, int _id  ) {
+	  public Mandingas_agent1(   SimpleLanguage _language, int _id  ) {
 		  language = _language;
-		  actuator = new Actuator2();
+		  actuator = new Actuator1();
 		  id=_id;
 	  }
 	  
-	  public Mandingas_agent2(   SimpleLanguage _language ) {
+	  public Mandingas_agent1(   SimpleLanguage _language ) {
 		  language = _language;
-		  actuator = new Actuator2();
+		  actuator = new Actuator1();
 	  }
 
 	  public void setLanguage(  SimpleLanguage _language ){
@@ -41,7 +41,7 @@ public class Mandingas_agent2 implements AgentProgram{
 
 	  public void init(){
 	    cmd.clear();
-	    actuator = new Actuator2();
+	    actuator = new Actuator1();
 	    ate=false;
 		lastEnergy=0;
 	  }

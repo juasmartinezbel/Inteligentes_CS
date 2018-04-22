@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas2;
 
 import java.util.Collections;
 import java.util.HashMap;
