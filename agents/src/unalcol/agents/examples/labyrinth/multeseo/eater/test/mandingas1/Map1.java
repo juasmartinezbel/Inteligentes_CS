@@ -1,25 +1,32 @@
 package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas1;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+
+
+
+
 /**
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
 public class Map1 {
 	private HashMap<String, Node1> map;
+	private static HashMap<String, Integer> ntimes;
 	private boolean pending=false;
 	private String nodePending="";
 	private String keyPending="";
 	private String lastKey="";
 	
 	public Map1() {
-		map = new HashMap<String, Node1>();
+		map = new HashMap<String, Node1>();		    
+	    ntimes = new HashMap<String, Integer>();		
 	}	
 	
 	public static String hashFunction(Integer x, Integer y) {
@@ -32,6 +39,13 @@ public class Map1 {
 	
 	public void add(Integer x, Integer y, Node1 node) {
 		map.put(hashFunction(x, y), node);
+		for(String neighbor:node.getNeighbors()) {
+			if(ntimes.containsKey(neighbor)) {
+				ntimes.put(neighbor, ntimes.get(neighbor)+1);
+			}else {
+				ntimes.put(neighbor, 1);
+			}					
+		}
 	}
 	
 	public Node1 node(Integer x, Integer y) {
@@ -60,7 +74,6 @@ public class Map1 {
 	}
 	
 	public Queue<Integer> nearestFood(Integer x, Integer y) {
-		
 		Queue<String> q = new LinkedList <String> ();
 		Queue<Integer> path = new LinkedList <Integer> ();
 		HashMap<String, Queue<Integer>> checked = new HashMap<String, Queue<Integer>>();  
@@ -99,25 +112,40 @@ public class Map1 {
 		
 		q.add(hashFunction(x, y));
 		checked.put(hashFunction(x, y), path);
-
+		
+		Comparer comparer = new Comparer();
+		Queue<String>  notVisitedPrority;
+		
 		while(q.size()!=0) {			
 			String node = q.poll();
 			
 			if(!map.containsKey(node)) {
 				return checked.get(node);
 			}
-			LinkedList<String> ls= map.get(node).getNeighbors();
+			LinkedList<String> ls = map.get(node).getNeighbors();
 			LinkedList<String> notVisited = new LinkedList<String>();
-			
 			
 			for (String neighbor:ls) {
 				if(!map.containsKey(neighbor))
-					notVisited.add(neighbor);		
-			}
-			
-			if(!notVisited.isEmpty()) {
-				ls=rearrange(notVisited);
-			}
+					notVisited.add(neighbor);				   
+			}				
+
+			if(notVisited.size() != 0) {
+				Collections.shuffle(notVisited);
+				notVisitedPrority = new  PriorityQueue<String>(10, comparer);
+				for (String neighbor:notVisited) {
+					if(!map.containsKey(neighbor))
+						notVisitedPrority.add(neighbor);				   
+				}
+				ls = notVisited;
+				
+				for(String cell:notVisitedPrority) {
+					System.out.print(cell + " ");
+				}
+				System.out.print(" size:" + notVisitedPrority.size() + " x: " + x + " y: " + y + ".");
+				System.out.println();	
+			}				
+				
 			
 			for (String neighbor:ls) {
 				if(!checked.containsKey(neighbor)) {
@@ -132,10 +160,31 @@ public class Map1 {
 		return new LinkedList <Integer>();
 	}
 	
-	public LinkedList<String> rearrange(LinkedList<String> n){
-		Collections.shuffle(n);
-		return n;
+	public static class Comparer implements Comparator<String> {
+
+	    @Override
+	    public int compare(String x, String y) {
+	        if (ntimes.get(x) < ntimes.get(y)) {
+	            return 1;
+	        }
+	        if (ntimes.get(x) > ntimes.get(y)) {
+	            return -1;
+	        }
+	        return 0;
+	    }
 	}
+	
+	public void printMap() {
+		for(String s:map.keySet()) {
+			System.out.print(s + ": ");
+			for(String n:map.get(s).getNeighbors()) {
+				System.out.print(n + ", ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}	
+	
 	
 	/**
 	 * 
@@ -171,7 +220,8 @@ public class Map1 {
 		
 		//Checks if the node is visited or if it is one that should be explored
 		if(map.containsKey(bye)) {
-			Node1 tmpNode1= map.get(bye);
+			
+			Node1 tmpNode= map.get(bye);
 			map.remove(bye);
 			if(lookingForFood) {
 				newPath=nearestFood(x, y);
@@ -179,7 +229,7 @@ public class Map1 {
 				newPath=hideNeighbor(x,y,bye, isWall);
 			}
 			if(!isWall)
-				map.put(bye, tmpNode1);
+				map.put(bye, tmpNode);
 		}else{
 			newPath=hideNeighbor(x,y,bye, isWall);
 		}
@@ -202,14 +252,14 @@ public class Map1 {
 	 */
 	public Queue<Integer> hideNeighbor(Integer x, Integer y, String bye, boolean isWall) {
 		String tmpKey=hashFunction(x,y);
-		Node1 tmpNode1= map.get(tmpKey);
+		Node1 tmpNode= map.get(tmpKey);
 		if(!isWall) {
 			nodePending=bye;
 			keyPending=tmpKey;
 			pending=true;
 		}
-		tmpNode1.removeNeighbor(bye);
-		map.put(tmpKey,tmpNode1);
+		tmpNode.removeNeighbor(bye);
+		map.put(tmpKey,tmpNode);
 		
 		return nearestUnexplored(x, y);
 	}
@@ -243,6 +293,8 @@ public class Map1 {
 	 * 
 	 */
 	public void clear(boolean isHard) {
+		String level = isHard ? "HARD" : "SOFT";
+		System.out.println("RESETING, LEVEL "+level);
 		if(isHard) {
 			map.clear();
 		}else {
