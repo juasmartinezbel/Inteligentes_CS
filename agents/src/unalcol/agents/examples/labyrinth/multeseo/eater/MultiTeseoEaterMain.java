@@ -4,7 +4,7 @@ import unalcol.agents.Agent;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.examples.labyrinth.Labyrinth;
 //import unalcol.agents.examples.labyrinth.Mandingas_agent.*;
-import unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas.*;
+import unalcol.agents.examples.labyrinth.multeseo.eater.sis20181.mandingas.copy.*;
 import unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas.*;
 import unalcol.agents.examples.labyrinth.LabyrinthDrawer;
 import unalcol.agents.simulate.util.SimpleLanguage;
