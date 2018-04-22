@@ -1,4 +1,4 @@
-package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas;
+package unalcol.agents.examples.labyrinth.multeseo.eater.test.mandingas1;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -7,11 +7,11 @@ import java.util.Queue;
 *
 * @author Cristian Rojas y Sebastian Martinez
 */
-public class Actuator2 {
+public class Actuator1 {
 	
 	private static final double MAX_REACH=55.0; 
 	
-	private Map2 map;
+	private Map1 map;
 	private Integer x;
 	private Integer y;
 	private Integer orientation;	
@@ -24,11 +24,11 @@ public class Actuator2 {
 	
 	public int maxHealth;
 	
-	Actuator2(){		
+	Actuator1(){		
 		x = 0;
 		y = 0;
 		orientation = 0;
-		map = new Map2();
+		map = new Map1();
 		keepEating=false;
 		lookingForFood = false;
 		maxHealth=Integer.MAX_VALUE;
@@ -102,13 +102,13 @@ public class Actuator2 {
 	 * @param walls
 	 */
 	public void addNode(boolean [] walls){
-		Node2 current;
+		Node1 current;
 		
 		if(map.contains(x, y)) {
 			current=map.node(x, y);
 			current.setNeighbors(x, y, walls);
 		}else {
-			current = new Node2(x, y, walls);
+			current = new Node1(x, y, walls);
 		}
 		map.add(x, y, current);
 	}
@@ -129,7 +129,7 @@ public class Actuator2 {
 		
 		if(FOOD) {
 			
-			Node2 thisNode=map.node(x, y);
+			Node1 thisNode=map.node(x, y);
 			if(!thisNode.isFood()) {
 				thisNode.thisIsFood();
 				map.add(x, y, thisNode);
@@ -203,7 +203,7 @@ public class Actuator2 {
 	 * 
 	 */
 	public int eat(boolean PF, boolean PR, boolean PB, boolean PL,  boolean MT, boolean FAIL, boolean AF, boolean AR, boolean AB, boolean AL, boolean FOOD, Integer energy, boolean isBad) {
-		Node2 thisNode=map.node(x, y);
+		Node1 thisNode=map.node(x, y);
 		boolean shouldEat=thisNode.isGoodFood();
 		
 		if(shouldEat) {
