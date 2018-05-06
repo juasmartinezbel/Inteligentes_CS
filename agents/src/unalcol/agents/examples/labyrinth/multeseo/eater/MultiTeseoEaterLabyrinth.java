@@ -28,7 +28,7 @@ public class MultiTeseoEaterLabyrinth extends MultiAgentLabyrinth{
     public static final int INC_ENERGY_LEVEL = 10;
     public static final int DEC_ENERGY_LEVEL = 5;
 
-    public static final int INITIAL_ENERGY = 40;
+    public static final int INITIAL_ENERGY = 20;
  
     protected int[]  agent_energy_level;
     

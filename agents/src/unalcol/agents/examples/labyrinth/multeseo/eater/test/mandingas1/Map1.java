@@ -138,12 +138,12 @@ public class Map1 {
 						notVisitedPrority.add(neighbor);				   
 				}
 				ls = notVisited;
-				
+				/*
 				for(String cell:notVisitedPrority) {
-					System.out.print(cell + " ");
+					//System.out.print(cell + " ");
 				}
-				System.out.print(" size:" + notVisitedPrority.size() + " x: " + x + " y: " + y + ".");
-				System.out.println();	
+				//System.out.print(" size:" + notVisitedPrority.size() + " x: " + x + " y: " + y + ".");
+				//System.out.println();	*/
 			}				
 				
 			
