@@ -120,7 +120,11 @@ public class Map2 {
 			}
 			
 			for (String neighbor:ls) {
+				
 				if(!checked.containsKey(neighbor)) {
+					if(neighbor.equals(nodePending)) {
+						continue;
+					}
 					q.add(neighbor);
 					path = new LinkedList <Integer> (checked.get(node));
 					path.add(getProximity(neighbor, node));
@@ -243,6 +247,7 @@ public class Map2 {
 	 * 
 	 */
 	public void clear(boolean isHard) {
+		System.out.println("Se ha reseteado");
 		if(isHard) {
 			map.clear();
 		}else {

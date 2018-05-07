@@ -148,6 +148,9 @@ public class Map1 {
 				
 			
 			for (String neighbor:ls) {
+				if(neighbor.equals(nodePending)) {
+					continue;
+				}
 				if(!checked.containsKey(neighbor)) {
 					q.add(neighbor);
 					path = new LinkedList <Integer> (checked.get(node));
@@ -293,6 +296,7 @@ public class Map1 {
 	 * 
 	 */
 	public void clear(boolean isHard) {
+		System.out.println("Se ha reseteado");
 		String level = isHard ? "HARD" : "SOFT";
 		System.out.println("RESETING, LEVEL "+level);
 		if(isHard) {
