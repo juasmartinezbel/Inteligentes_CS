@@ -12,11 +12,11 @@ public class Mandingas_Agent implements AgentProgram {
 	 */
     private String [] percepts = {"size", "black_time", "white_time", "play"};
     
-    private static final int SIZE=0;
+    protected static final int SIZE=0;
     protected static int MY_TIME;
 	protected static int RIVAL_TIME;
-    private static final int TURN=3;
-    private static final String PASS="PASS";
+	protected static final int TURN=3;
+	protected static final String PASS="PASS";
     protected String color;
     
     public Mandingas_Agent( String color ){
@@ -44,6 +44,7 @@ public class Mandingas_Agent implements AgentProgram {
             int j = (int)(8*Math.random());
             return new Action(move(i,j));
         }
+        
         return new Action(PASS);
     }
 
