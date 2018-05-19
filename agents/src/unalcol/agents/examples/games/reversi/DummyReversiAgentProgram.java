@@ -29,7 +29,7 @@ public class DummyReversiAgentProgram implements AgentProgram {
             int j = (int)(8*Math.random());
             return new Action( i+":"+j+":"+color );
         }
-        System.out.println("Stealing turn");
+        //System.out.println("Stealing turn");
         return new Action(Reversi.PASS);
     }
 
