@@ -1,10 +1,10 @@
-package unalcol.agents.examples.games.reversi.isi20181.mandingas;
+package unalcol.agents.examples.games.reversi.test1;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import unalcol.agents.Percept;
 
-public class Board {
+public class Board1 {
 	
 	public HashMap <String, Integer> possibles;
     public LinkedList <String> region4=new LinkedList<String>();
@@ -16,7 +16,7 @@ public class Board {
     protected String COLOR;
     protected String RIVAL;
     private static int SIZE;
-	public Board (String color, String rival) {
+	public Board1 (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
 	}
@@ -82,6 +82,7 @@ public class Board {
     	region1.removeAll(region4);
     }
 	
+	
 	public void printPossibles() {
 		for(String key : possibles.keySet()) {
 			System.out.println(key + " " + possibles.get(key));
@@ -103,6 +104,7 @@ public class Board {
 	
 
 	
+
 	public void analizeValidMove(Percept p, int x, int y) {
 		
 		LinkedList <MovementInInAnalisis> list = new LinkedList<MovementInInAnalisis>();
@@ -127,6 +129,7 @@ public class Board {
 		
 		while(!list.isEmpty()) {
 			MovementInInAnalisis actual = list.poll();
+			
 			if((actual.x+actual.i)<0 || (actual.x+actual.i)>=SIZE || (actual.y+actual.j)<0 || (actual.y+actual.j)>=SIZE) {
 				continue;
 			}
@@ -143,6 +146,7 @@ public class Board {
 		}
 	
 	}
+	
 	
 	class MovementInInAnalisis {
 	       public int x;

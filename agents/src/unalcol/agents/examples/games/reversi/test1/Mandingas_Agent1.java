@@ -1,13 +1,16 @@
-package unalcol.agents.examples.games.reversi.isi20181.mandingas;
+package unalcol.agents.examples.games.reversi.test1;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
 
-public class Mandingas_Agent implements AgentProgram {
+public class Mandingas_Agent1 implements AgentProgram {
 	/*
 	 * Blue = White
 	 * Red = Black
@@ -21,15 +24,15 @@ public class Mandingas_Agent implements AgentProgram {
 	protected static final String PASS="PASS";
     protected String color;
     protected String rival;
-    private Board board;
+    private Board1 board;
     private static boolean firstTime=true;
     
-    public Mandingas_Agent( String color ){
+    public Mandingas_Agent1( String color ){
         this.color = color;
         rival = color.equals("white") ? "black":"white";
         MY_TIME = color.equals("white") ? 2:1;
         RIVAL_TIME = MY_TIME==1 ? 2:1;
-        board = new Board(color, rival);
+        board = new Board1(color, rival);
     }
     
     @Override
@@ -45,9 +48,8 @@ public class Mandingas_Agent implements AgentProgram {
         	HashMap <String, Integer> possibles = board.possibles;
         	
     		if(possibles.size()>0) {
-    			int r = (int)(possibles.size()*Math.random());
-    			LinkedList<String> keys = new LinkedList<>(possibles.keySet());
-    			return new Action(keys.get(r) + ":" + color);
+    			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
+    			return new Action(g + ":" + color);
     		}else {    		
     			return new Action(PASS);
     		}
