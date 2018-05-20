@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
+import unalcol.agents.examples.games.reversi.isi20181.mandingas.Board.MovementInInAnalisis;
 
 public class Mandingas_Agent implements AgentProgram {
 	/*
@@ -31,26 +32,27 @@ public class Mandingas_Agent implements AgentProgram {
         board = new Board(color, rival);
     }
     
-    
-        
-    
     @Override
     public Action compute(Percept p) { 
     	if(firstTime) {
     		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     		board.regions(size);
-    		System.out.println(board.findAllMoves(p).toString());
-    		firstTime=false;
-    	}
-    	
-        long time = (long)(200 * Math.random());
-        try{
-           Thread.sleep(time);
-        }catch(Exception e){}
+    		
+    		firstTime=false;    		
+    	}    	
+
         if( p.getAttribute(percepts[TURN]).equals(color)){
-            int i = (int)(8*Math.random());
-            int j = (int)(8*Math.random());
-            return new Action(board.move(i,j));
+        	board.findAllMoves(p);
+    		if(board.possibles.keySet().size()>0) {
+    			int r = (int)(board.possibles.keySet().size()*Math.random());
+        		
+        		for(String m : board.possibles.keySet()) {
+        			r--;
+        			if (r==0) {
+        				return new Action(m + ":" + color);
+        			}
+        		}
+    		}    		
         }
         
         return new Action(PASS);

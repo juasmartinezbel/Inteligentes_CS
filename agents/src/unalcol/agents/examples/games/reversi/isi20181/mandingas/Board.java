@@ -1,10 +1,12 @@
 package unalcol.agents.examples.games.reversi.isi20181.mandingas;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import unalcol.agents.Percept;
 
 public class Board {
 	
+	public HashMap <String, Integer> possibles;
     public LinkedList <String> region4=new LinkedList<String>();
     public LinkedList <String> region3=new LinkedList<String>();
     public LinkedList <String> region2=new LinkedList<String>();
@@ -27,7 +29,10 @@ public class Board {
     	return x+":"+y+":"+COLOR;
     }
     
-    
+    public String getCell(Percept p, int i, int j) {
+    	return String.valueOf(p.getAttribute(square(i,j)));
+    }    
+
 	public void regions(int size) {
 		SIZE=size;
 		
@@ -77,26 +82,32 @@ public class Board {
     	region1.removeAll(region4);
     }
 	
-	public LinkedList<String> findAllMoves(Percept p) {
-		
-		validMoves = new LinkedList<String>();
-		
-		for(int i=0; i<SIZE; i++) {
-			for(int j=0; j<SIZE; j++) {
-				if(analizeValidMove(i, j, p))
-					validMoves.add(square(i,j));
-			}
+	public void printPossibles() {
+		for(String key : possibles.keySet()) {
+			System.out.println(key + " " + possibles.get(key));
 		}
-		return validMoves;
 	}
 	
-	
-	public boolean analizeValidMove(int x, int y, Percept p) {
-		String space=String.valueOf(p.getAttribute(square(x,y)));
-		if(!space.equals("space")) {
-			return false;
+	public void findAllMoves(Percept p) {
+		
+		possibles = new HashMap<String, Integer>();
+		for(int i=0; i<SIZE; i++) {
+			for(int j=0; j<SIZE; j++) {
+				if(getCell(p,i,j).equals(COLOR)) {
+					analizeValidMove(p, i, j);
+				}
+			}
 		}
 		
+	}
+	
+
+	
+	public void analizeValidMove(Percept p, int x, int y) {
+		
+		LinkedList <MovementInInAnalisis> list = new LinkedList<MovementInInAnalisis>();
+		
+				
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
 				continue;
@@ -105,14 +116,56 @@ public class Board {
 				if((y+j)<0 || (y+j)>=SIZE)
 					continue;
 				
-				if((y+j==0&&x+i==0))
+				if((j==0&&i==0))
 					continue;
 				
-				
-				
+				if (getCell(p,x+i,y+j).equals(RIVAL)) {
+					list.add(new MovementInInAnalisis(x+i,y+j,1,i,j));
+				}
 			}
 		}
-		return false;
+		
+		while(!list.isEmpty()) {
+//			for(MovementInInAnalisis m : list) {
+//				System.out.print("list: " + m.x + ":" + m.y + " ");
+//			}
+//			System.out.println();
+			MovementInInAnalisis actual = list.poll();
+//			System.out.println(getCell(p, actual.x + actual.i, actual.y + actual.j));
+			if((actual.x+actual.i)<0 || (actual.x+actual.i)>=SIZE || (actual.y+actual.j)<0 || (actual.y+actual.j)>=SIZE) {
+				continue;
+			}
+			if(getCell(p, actual.x + actual.i, actual.y + actual.j).equals(RIVAL)) {
+				list.add(new MovementInInAnalisis(actual.x + actual.i, actual.y + actual.j, actual.fichasCambiadas + 1, actual.i, actual.j));
+			}else if(getCell(p, actual.x + actual.i, actual.y + actual.j).equals("space")) {
+				if(possibles.containsKey(square(actual.x, actual.y))) {
+					possibles.put(square(actual.x + actual.i, actual.y + actual.j), possibles.get(square(actual.x, actual.y)+actual.fichasCambiadas));
+				}else {
+					possibles.put(square(actual.x + actual.i, actual.y + actual.j),actual.fichasCambiadas);
+				}
+			}
+//			printPossibles();
+			
+			
+		}
+	
+	}
+	
+	class MovementInInAnalisis {
+	       public int x;
+	       public int y;
+	       public int fichasCambiadas;
+	       public int i;
+	       public int j;
+
+	
+	public MovementInInAnalisis(int x, int y, int fichasCambiadas, int i, int j) {
+	      this.x = x;
+	      this.y = y;
+	      this.fichasCambiadas = fichasCambiadas;
+	      this.i = i;
+	      this.j = j;
+	   }
 	}
 	
 }
