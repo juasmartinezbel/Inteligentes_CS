@@ -16,6 +16,7 @@ public class ReversiMain {
     // Reflection
     Agent w_agent = new Agent( new Mandingas_Agent("white") );
     Agent b_agent = new Agent( new Mandingas_Agent1("black") );
+    
     ReversiMainFrame frame = new ReversiMainFrame( w_agent, b_agent );
     frame.setVisible(true);
   }

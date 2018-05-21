@@ -46,11 +46,10 @@ public class Mandingas_Agent1 implements AgentProgram {
         if(p.getAttribute(percepts[TURN]).equals(color)){
         	board.findAllMoves(p);
         	HashMap <String, Integer> possibles = board.possibles;
-        	
     		if(possibles.size()>0) {
     			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
     			return new Action(g + ":" + color);
-    		}else {    		
+    		}else {    
     			return new Action(PASS);
     		}
         }

@@ -2,6 +2,8 @@ package unalcol.agents.examples.games.reversi.test1;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Stack;
+
 import unalcol.agents.Percept;
 
 public class Board1 {
@@ -94,7 +96,7 @@ public class Board1 {
 		possibles = new HashMap<String, Integer>();
 		for(int i=0; i<SIZE; i++) {
 			for(int j=0; j<SIZE; j++) {
-				if(getCell(p,i,j).equals(COLOR)) {
+				if(getCell(p,i,j).equals("space")) {
 					analizeValidMove(p, i, j);
 				}
 			}
@@ -107,9 +109,17 @@ public class Board1 {
 
 	public void analizeValidMove(Percept p, int x, int y) {
 		
-		LinkedList <MovementInInAnalisis> list = new LinkedList<MovementInInAnalisis>();
+		Stack <MovementInInAnalisis> list = new Stack<MovementInInAnalisis>();
+		int score=0;
+		String s=square(x,y);
+		if(region4.contains(s)) {
+			score=SIZE;
+		}else if(region3.contains(s)) {
+			score=SIZE/2;
+		}else if(region2.contains(s)) {
+			score=(int)SIZE/4;
+		}
 		
-				
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
 				continue;
@@ -122,47 +132,76 @@ public class Board1 {
 					continue;
 				
 				if (getCell(p,x+i,y+j).equals(RIVAL)) {
-					list.add(new MovementInInAnalisis(x+i,y+j,1,i,j));
+					if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*i)>=SIZE)
+						continue;
+					
+					list.push(new MovementInInAnalisis(x+i,y+j,i,j));
 				}
 			}
 		}
 		
 		while(!list.isEmpty()) {
-			MovementInInAnalisis actual = list.poll();
 			
-			if((actual.x+actual.i)<0 || (actual.x+actual.i)>=SIZE || (actual.y+actual.j)<0 || (actual.y+actual.j)>=SIZE) {
-				continue;
-			}
-			if(getCell(p, actual.x + actual.i, actual.y + actual.j).equals(RIVAL)) {
-				list.add(new MovementInInAnalisis(actual.x + actual.i, actual.y + actual.j, actual.fichasCambiadas + 1, actual.i, actual.j));
-			}else if(getCell(p, actual.x + actual.i, actual.y + actual.j).equals("space")) {
-				if(possibles.containsKey(square(actual.x, actual.y))) {
-					possibles.put(square(actual.x + actual.i, actual.y + actual.j), possibles.get(square(actual.x, actual.y)+actual.fichasCambiadas));
-				}else {
-					possibles.put(square(actual.x + actual.i, actual.y + actual.j),actual.fichasCambiadas);
+			MovementInInAnalisis actual = list.pop();
+
+			int actualX= actual.x;
+			int actualY= actual.y;
+			int tmpScore = 0;
+			String n=getCell(p, actualX, actualY);
+			boolean found=true;
+			while(n.equals(RIVAL)) {
+				tmpScore+=1;
+				actualX+=actual.i;
+				actualY+=actual.j;
+				if((actualX)<0 || (actualX)>=SIZE || (actualY)<0 || (actualY)>=SIZE) {
+					found=false;
+					break;
 				}
+				n=getCell(p, actualX, actualY);
+			}
+			
+			if(n.equals(COLOR) && found) {
+				score+=tmpScore;
+				possibles.put(square(x,y),score);
 			}
 			
 		}
-	
 	}
 	
+	public void choice() {
+		
+	}
 	
 	class MovementInInAnalisis {
-	       public int x;
-	       public int y;
-	       public int fichasCambiadas;
-	       public int i;
-	       public int j;
-
-	
-	public MovementInInAnalisis(int x, int y, int fichasCambiadas, int i, int j) {
-	      this.x = x;
-	      this.y = y;
-	      this.fichasCambiadas = fichasCambiadas;
-	      this.i = i;
-	      this.j = j;
-	   }
+		public int x;
+		public int y;
+		public int i;
+		public int j;
+		
+		
+		public MovementInInAnalisis(int x, int y, int i, int j) {
+			this.x = x;
+			this.y = y;
+			this.i = i;
+			this.j = j;
+		}
 	}
 	
+	class BoardState {
+		public int id;
+		public int level;
+		public boolean max; 
+		public HashMap <String, Integer> currentMap;
+		public int score;
+		public String color;
+	
+		public BoardState(int id, boolean max, int level, HashMap <String, Integer> currentMap, int score) {
+			this.id=id;
+			this.max=max;
+			this.level=level;
+			this.currentMap=new HashMap<String, Integer>();
+			this.currentMap.putAll(currentMap);
+			this.score=score;
+		}
+	}
 }

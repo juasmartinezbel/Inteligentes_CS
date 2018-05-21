@@ -1,7 +1,9 @@
 package unalcol.agents.examples.games.reversi.isi20181.mandingas;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
@@ -45,9 +47,11 @@ public class Mandingas_Agent implements AgentProgram {
         	HashMap <String, Integer> possibles = board.possibles;
         	
     		if(possibles.size()>0) {
-    			int r = (int)(possibles.size()*Math.random());
+    			/*int r = (int)(possibles.size()*Math.random());
     			LinkedList<String> keys = new LinkedList<>(possibles.keySet());
-    			return new Action(keys.get(r) + ":" + color);
+    			return new Action(keys.get(r) + ":" + color);*/
+    			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
+    			return new Action(g + ":" + color);
     		}else {    		
     			return new Action(PASS);
     		}
