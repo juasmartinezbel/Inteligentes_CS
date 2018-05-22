@@ -1,9 +1,7 @@
 package unalcol.agents.examples.games.reversi.test1;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import unalcol.agents.Action;
@@ -25,7 +23,7 @@ public class Mandingas_Agent1 implements AgentProgram {
     protected String color;
     protected String rival;
     private Board1 board;
-    private static boolean firstTime=true;
+    private static boolean firstTime;
     
     public Mandingas_Agent1( String color ){
         this.color = color;
@@ -33,23 +31,26 @@ public class Mandingas_Agent1 implements AgentProgram {
         MY_TIME = color.equals("white") ? 2:1;
         RIVAL_TIME = MY_TIME==1 ? 2:1;
         board = new Board1(color, rival);
+        firstTime=true;
     }
-    
+    boolean u=true;
     @Override
-    public Action compute(Percept p) { 
+    public Action compute(Percept p) {
     	if(firstTime) {
     		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     		board.regions(size);
-    		firstTime=false;    		
+    		firstTime=false; 		
     	}    	
-
+    	
         if(p.getAttribute(percepts[TURN]).equals(color)){
         	board.findAllMoves(p);
         	HashMap <String, Integer> possibles = board.possibles;
+        	u=true;
     		if(possibles.size()>0) {
     			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
+    			
     			return new Action(g + ":" + color);
-    		}else {    
+    		}else {
     			return new Action(PASS);
     		}
         }
@@ -58,6 +59,7 @@ public class Mandingas_Agent1 implements AgentProgram {
 
     @Override
     public void init() {
+    	firstTime=true;
     }
     
 }

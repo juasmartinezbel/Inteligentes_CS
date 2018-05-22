@@ -1,7 +1,7 @@
 package unalcol.agents.examples.games.reversi.test1;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Stack;
 
 import unalcol.agents.Percept;
@@ -9,11 +9,12 @@ import unalcol.agents.Percept;
 public class Board1 {
 	
 	public HashMap <String, Integer> possibles;
-    public LinkedList <String> region4=new LinkedList<String>();
-    public LinkedList <String> region3=new LinkedList<String>();
-    public LinkedList <String> region2=new LinkedList<String>();
-    public LinkedList <String> region1=new LinkedList<String>();
-    public LinkedList <String> validMoves;
+	public ArrayDeque <BoardState> changesStates;
+    public ArrayDeque <String> region4=new ArrayDeque<String>();
+    public ArrayDeque <String> region3=new ArrayDeque<String>();
+    public ArrayDeque <String> region2=new ArrayDeque<String>();
+    public ArrayDeque <String> region1=new ArrayDeque<String>();
+    public ArrayDeque <String> empty=new ArrayDeque<String>();
     
     protected String COLOR;
     protected String RIVAL;
@@ -34,6 +35,11 @@ public class Board1 {
     public String getCell(Percept p, int i, int j) {
     	return String.valueOf(p.getAttribute(square(i,j)));
     }    
+    
+    public String getCell(Percept p, String s) {
+    	return String.valueOf(p.getAttribute(s));
+    }   
+    
 
 	public void regions(int size) {
 		SIZE=size;
@@ -42,6 +48,7 @@ public class Board1 {
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
         		region1.add(i+":"+j);
+        		empty.add(i+":"+j);
         	}
     	}
     	
@@ -84,6 +91,17 @@ public class Board1 {
     	region1.removeAll(region4);
     }
 	
+	public int regionWeights(String s) {
+		int score=0;
+		if(region4.contains(s)) {
+			score=SIZE;
+		}else if(region3.contains(s)) {
+			score=SIZE/2;
+		}else if(region2.contains(s)) {
+			score=(int)SIZE/4;
+		}
+		return score;
+	}
 	
 	public void printPossibles() {
 		for(String key : possibles.keySet()) {
@@ -92,16 +110,21 @@ public class Board1 {
 	}
 	
 	public void findAllMoves(Percept p) {
-		
+		changesStates = new ArrayDeque<BoardState>();
 		possibles = new HashMap<String, Integer>();
-		for(int i=0; i<SIZE; i++) {
-			for(int j=0; j<SIZE; j++) {
-				if(getCell(p,i,j).equals("space")) {
-					analizeValidMove(p, i, j);
-				}
+		ArrayDeque <String> toAnalize=new ArrayDeque<String>();
+		toAnalize.addAll(empty);
+		
+		for(String s: toAnalize) {
+			if(getCell(p,s).equals("space")) {
+				String []ij = s.split(":");
+				int i=Integer.valueOf(ij[0]);
+				int j=Integer.valueOf(ij[1]);
+				analizeValidMove(p, i, j);
+			}else {
+				empty.remove(s);
 			}
 		}
-		
 	}
 	
 
@@ -109,16 +132,7 @@ public class Board1 {
 
 	public void analizeValidMove(Percept p, int x, int y) {
 		
-		Stack <MovementInInAnalisis> list = new Stack<MovementInInAnalisis>();
-		int score=0;
-		String s=square(x,y);
-		if(region4.contains(s)) {
-			score=SIZE;
-		}else if(region3.contains(s)) {
-			score=SIZE/2;
-		}else if(region2.contains(s)) {
-			score=(int)SIZE/4;
-		}
+		ArrayDeque <MovementInInAnalisis> list = new ArrayDeque<MovementInInAnalisis>();
 		
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
@@ -134,14 +148,13 @@ public class Board1 {
 				if (getCell(p,x+i,y+j).equals(RIVAL)) {
 					if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*i)>=SIZE)
 						continue;
-					
 					list.push(new MovementInInAnalisis(x+i,y+j,i,j));
+					
 				}
 			}
 		}
-		
+		int score=0;
 		while(!list.isEmpty()) {
-			
 			MovementInInAnalisis actual = list.pop();
 
 			int actualX= actual.x;
@@ -164,7 +177,9 @@ public class Board1 {
 				score+=tmpScore;
 				possibles.put(square(x,y),score);
 			}
-			
+		}
+		if(possibles.containsKey(square(x,y))) {
+			possibles.put(square(x,y),score+regionWeights(square(x,y)));
 		}
 	}
 	
@@ -188,19 +203,20 @@ public class Board1 {
 	}
 	
 	class BoardState {
-		public int id;
+		public String changed;
 		public int level;
-		public boolean max; 
-		public HashMap <String, Integer> currentMap;
+		public int max; // 1=Maximiza -1=Minimiza 
+		public HashMap <String, Integer> changedMap;
 		public int score;
 		public String color;
-	
-		public BoardState(int id, boolean max, int level, HashMap <String, Integer> currentMap, int score) {
-			this.id=id;
+		 
+		
+		public BoardState(String changed, int max, int level, HashMap <String, Integer> changedMap, int score) {
+			this.changed=changed;
 			this.max=max;
 			this.level=level;
-			this.currentMap=new HashMap<String, Integer>();
-			this.currentMap.putAll(currentMap);
+			this.changedMap=new HashMap<String, Integer>();
+			this.changedMap.putAll(changedMap);
 			this.score=score;
 		}
 	}
