@@ -2,7 +2,6 @@ package unalcol.agents.examples.games.reversi.test1;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Stack;
 
 import unalcol.agents.Percept;
 
@@ -10,15 +9,15 @@ public class Board1 {
 	
 	public HashMap <String, Integer> possibles;
 	public ArrayDeque <BoardState> changesStates;
-    public ArrayDeque <String> region4=new ArrayDeque<String>();
-    public ArrayDeque <String> region3=new ArrayDeque<String>();
-    public ArrayDeque <String> region2=new ArrayDeque<String>();
-    public ArrayDeque <String> region1=new ArrayDeque<String>();
-    public ArrayDeque <String> empty=new ArrayDeque<String>();
+    public ArrayDeque <String> region4;
+    public ArrayDeque <String> region3;
+    public ArrayDeque <String> region2;
+    public ArrayDeque <String> region1;
+    public ArrayDeque <String> empty;
     
     protected String COLOR;
     protected String RIVAL;
-    private static int SIZE;
+    public int SIZE;
 	public Board1 (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
@@ -42,6 +41,11 @@ public class Board1 {
     
 
 	public void regions(int size) {
+		region4=new ArrayDeque<String>();
+	    region3=new ArrayDeque<String>();
+	    region2=new ArrayDeque<String>();
+	    region1=new ArrayDeque<String>();
+	    empty=new ArrayDeque<String>();
 		SIZE=size;
 		
     	int border=(size-1);
@@ -133,7 +137,7 @@ public class Board1 {
 	public void analizeValidMove(Percept p, int x, int y) {
 		
 		ArrayDeque <MovementInInAnalisis> list = new ArrayDeque<MovementInInAnalisis>();
-		
+		int score=0;
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
 				continue;
@@ -145,39 +149,37 @@ public class Board1 {
 				if((j==0&&i==0))
 					continue;
 				
-				if (getCell(p,x+i,y+j).equals(RIVAL)) {
-					if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*i)>=SIZE)
-						continue;
-					list.push(new MovementInInAnalisis(x+i,y+j,i,j));
+				int actualX= x+i;
+				int actualY= y+j;
+				String n=getCell(p, actualX, actualY);
+				if (!n.equals(RIVAL)) 
+					continue;
 					
+				if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*i)>=SIZE)
+					continue;
+				
+				
+				int tmpScore = 0;
+				boolean found=true;
+				while(n.equals(RIVAL)) {
+					tmpScore+=1;
+					actualX+=i;
+					actualY+=j;
+					if((actualX)<0 || (actualX)>=SIZE || (actualY)<0 || (actualY)>=SIZE) {
+						found=false;
+						break;
+					}
+					n=getCell(p, actualX, actualY);
+				}
+				
+				if(n.equals(COLOR) && found) {
+					score+=tmpScore;
+					possibles.put(square(x,y),score);
 				}
 			}
 		}
-		int score=0;
-		while(!list.isEmpty()) {
-			MovementInInAnalisis actual = list.pop();
-
-			int actualX= actual.x;
-			int actualY= actual.y;
-			int tmpScore = 0;
-			String n=getCell(p, actualX, actualY);
-			boolean found=true;
-			while(n.equals(RIVAL)) {
-				tmpScore+=1;
-				actualX+=actual.i;
-				actualY+=actual.j;
-				if((actualX)<0 || (actualX)>=SIZE || (actualY)<0 || (actualY)>=SIZE) {
-					found=false;
-					break;
-				}
-				n=getCell(p, actualX, actualY);
-			}
-			
-			if(n.equals(COLOR) && found) {
-				score+=tmpScore;
-				possibles.put(square(x,y),score);
-			}
-		}
+		
+	
 		if(possibles.containsKey(square(x,y))) {
 			possibles.put(square(x,y),score+regionWeights(square(x,y)));
 		}

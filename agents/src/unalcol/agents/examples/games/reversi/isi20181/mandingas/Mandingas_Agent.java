@@ -36,6 +36,7 @@ public class Mandingas_Agent implements AgentProgram {
     
     @Override
     public Action compute(Percept p) { 
+    	firstTime=board.SIZE!=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     	if(firstTime) {
     		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     		board.regions(size);
