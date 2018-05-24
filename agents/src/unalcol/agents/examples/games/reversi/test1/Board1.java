@@ -95,14 +95,21 @@ public class Board1 {
     	region1.removeAll(region4);
     }
 	
-	public int regionWeights(String s) {
+	public int regionWeights(int x, int y) {
 		int score=0;
+		String s=square(x,y);
+		//region4: Corners [Best Priority]
+		//region2: Borders [Second Best Priority]
+		//region3: Buffer  [Bad Priority]
 		if(region4.contains(s)) {
 			score=SIZE;
-		}else if(region3.contains(s)) {
-			score=SIZE/2;
+			region2.add(square(x+1,y));
+			region2.add(square(x,y+1));
+			region2.add(square(x+1,y+1));
 		}else if(region2.contains(s)) {
 			score=(int)SIZE/4;
+		}else if(region3.contains(s)) {
+			score=-SIZE/2;
 		}
 		return score;
 	}
@@ -129,15 +136,17 @@ public class Board1 {
 				empty.remove(s);
 			}
 		}
+		
+		/*for(BoardState b: changesStates) {
+			b.print();
+		}*/
 	}
 	
 
-	
-
 	public void analizeValidMove(Percept p, int x, int y) {
-		
-		ArrayDeque <MovementInInAnalisis> list = new ArrayDeque<MovementInInAnalisis>();
 		int score=0;
+		String tile=square(x,y);
+		HashMap <String,String> totalChanges=new HashMap<String,String>();
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
 				continue;
@@ -152,6 +161,7 @@ public class Board1 {
 				int actualX= x+i;
 				int actualY= y+j;
 				String n=getCell(p, actualX, actualY);
+				
 				if (!n.equals(RIVAL)) 
 					continue;
 					
@@ -161,7 +171,9 @@ public class Board1 {
 				
 				int tmpScore = 0;
 				boolean found=true;
+				HashMap <String,String> tmp=new HashMap<String,String>();
 				while(n.equals(RIVAL)) {
+					tmp.put(square(actualX,actualY),COLOR);
 					tmpScore+=1;
 					actualX+=i;
 					actualY+=j;
@@ -174,14 +186,18 @@ public class Board1 {
 				
 				if(n.equals(COLOR) && found) {
 					score+=tmpScore;
-					possibles.put(square(x,y),score);
+					possibles.put(tile,score);
+					totalChanges.putAll(tmp);
 				}
 			}
 		}
 		
-	
-		if(possibles.containsKey(square(x,y))) {
-			possibles.put(square(x,y),score+regionWeights(square(x,y)));
+		
+		if(possibles.containsKey(tile)) {
+			totalChanges.put(tile, COLOR);
+			score+=regionWeights(x,y);
+			changesStates.push(new BoardState(tile,1,1,totalChanges,score));
+			possibles.put(tile,score);
 		}
 	}
 	
@@ -208,18 +224,25 @@ public class Board1 {
 		public String changed;
 		public int level;
 		public int max; // 1=Maximiza -1=Minimiza 
-		public HashMap <String, Integer> changedMap;
+		public HashMap <String, String> changedMap;
 		public int score;
 		public String color;
 		 
 		
-		public BoardState(String changed, int max, int level, HashMap <String, Integer> changedMap, int score) {
+		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score) {
 			this.changed=changed;
 			this.max=max;
 			this.level=level;
-			this.changedMap=new HashMap<String, Integer>();
+			this.changedMap=new HashMap<String, String>();
 			this.changedMap.putAll(changedMap);
 			this.score=score;
+		}
+		
+		public void print() {
+			System.out.println("--------------------------");
+			System.out.println("Tile changed: "+changed);
+			System.out.println("Changed Map: "+changedMap.toString());
+			System.out.println("Score: "+score);
 		}
 	}
 }
