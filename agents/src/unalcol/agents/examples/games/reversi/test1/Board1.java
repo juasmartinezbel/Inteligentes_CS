@@ -165,7 +165,7 @@ public class Board1 {
 				if (!n.equals(RIVAL)) 
 					continue;
 					
-				if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*i)>=SIZE)
+				if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*j)>=SIZE)
 					continue;
 				
 				

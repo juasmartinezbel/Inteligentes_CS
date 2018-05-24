@@ -16,11 +16,11 @@ public class Mandingas_Agent implements AgentProgram {
 	 */
     private String [] percepts = {"size", "black_time", "white_time", "play"};
     
-    protected static final int SIZE=0;
-    protected static int MY_TIME;
-	protected static int RIVAL_TIME;
-	protected static final int TURN=3;
-	protected static final String PASS="PASS";
+    protected final int SIZE=0;
+    protected int MY_TIME;
+	protected int RIVAL_TIME;
+	protected final int TURN=3;
+	protected final String PASS="PASS";
     protected String color;
     protected String rival;
     private Board board;

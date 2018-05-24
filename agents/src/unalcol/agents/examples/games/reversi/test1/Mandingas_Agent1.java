@@ -16,14 +16,14 @@ public class Mandingas_Agent1 implements AgentProgram {
     private String [] percepts = {"size", "black_time", "white_time", "play"};
     
     protected static final int SIZE=0;
-    protected static int MY_TIME;
-	protected static int RIVAL_TIME;
+    protected int MY_TIME;
+	protected int RIVAL_TIME;
 	protected static final int TURN=3;
 	protected static final String PASS="PASS";
     protected String color;
     protected String rival;
     private Board1 board;
-    private static boolean firstTime;
+    private boolean firstTime;
     
     public Mandingas_Agent1( String color ){
         this.color = color;
