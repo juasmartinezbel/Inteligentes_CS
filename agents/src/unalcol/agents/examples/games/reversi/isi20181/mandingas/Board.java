@@ -1,21 +1,21 @@
 package unalcol.agents.examples.games.reversi.isi20181.mandingas;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import unalcol.agents.Percept;
 
 public class Board {
 	
 	public HashMap <String, Integer> possibles;
-    public LinkedList <String> region4=new LinkedList<String>();
-    public LinkedList <String> region3=new LinkedList<String>();
-    public LinkedList <String> region2=new LinkedList<String>();
-    public LinkedList <String> region1=new LinkedList<String>();
-    public LinkedList <String> validMoves;
+    public ArrayDeque <String> region4=new ArrayDeque<String>();
+    public ArrayDeque <String> region3=new ArrayDeque<String>();
+    public ArrayDeque <String> region2=new ArrayDeque<String>();
+    public ArrayDeque <String> region1=new ArrayDeque<String>();
+    public ArrayDeque <String> validMoves;
     
     protected String COLOR;
     protected String RIVAL;
-    private static int SIZE;
+    public int SIZE;
 	public Board (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
@@ -34,6 +34,10 @@ public class Board {
     }    
 
 	public void regions(int size) {
+		region4=new ArrayDeque<String>();
+	    region3=new ArrayDeque<String>();
+	    region2=new ArrayDeque<String>();
+	    region1=new ArrayDeque<String>();
 		SIZE=size;
 		
     	int border=(size-1);
@@ -105,7 +109,7 @@ public class Board {
 	
 	public void analizeValidMove(Percept p, int x, int y) {
 		
-		LinkedList <MovementInInAnalisis> list = new LinkedList<MovementInInAnalisis>();
+		ArrayDeque <MovementInInAnalisis> list = new ArrayDeque<MovementInInAnalisis>();
 		
 				
 		for(int i=-1; i<2; i++) {
