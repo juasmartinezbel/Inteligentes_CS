@@ -1,11 +1,12 @@
-package unalcol.agents.examples.games.reversi.test1;
+package unalcol.agents.examples.games.reversi.test2;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
 
 import unalcol.agents.Percept;
 
-public class Board1 {
+
+public class Board2 {
 	
 	public HashMap <String, Integer> possibles;
 	public ArrayDeque <BoardState> changesStates;
@@ -14,11 +15,13 @@ public class Board1 {
     public ArrayDeque <String> region2;
     public ArrayDeque <String> region1;
     public ArrayDeque <String> empty;
-    
+    public int CurrentScore = 2;
+    private static final int LEVEL_DEPTH=3;
+    private static final boolean EURISTHIC=false;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
-	public Board1 (String color, String rival) {
+	public Board2 (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
 	}
@@ -26,6 +29,8 @@ public class Board1 {
 	public String square (int x, int y) {
     	return x+":"+y;
     }
+	
+	
     
     public String move (int x, int y) {
     	return x+":"+y+":"+COLOR;
@@ -97,6 +102,8 @@ public class Board1 {
 	
 	public int regionWeights(int x, int y) {
 		int score=0;
+		if(!EURISTHIC)
+			return 0;
 		String s=square(x,y);
 		//region4: Corners [Best Priority]
 		//region2: Borders [Second Best Priority]
@@ -136,12 +143,12 @@ public class Board1 {
 				empty.remove(s);
 			}
 		}
-		
 	}
 	
 
 	public void analizeValidMove(Percept p, int x, int y) {
 		int score=1;
+		boolean changes=false;
 		String tile=square(x,y);
 		HashMap <String,String> totalChanges=new HashMap<String,String>();
 		for(int i=-1; i<2; i++) {
@@ -182,6 +189,7 @@ public class Board1 {
 				}
 				
 				if(n.equals(COLOR) && found) {
+					changes=true;
 					score+=tmpScore;
 					possibles.put(tile,score);
 					totalChanges.putAll(tmp);
@@ -190,52 +198,73 @@ public class Board1 {
 		}
 		
 		
-		if(possibles.containsKey(tile)) {
+		if(changes) {
 			totalChanges.put(tile, COLOR);
-			//score+=regionWeights(x,y);
-			changesStates.push(new BoardState(tile,1,1,totalChanges,score));
+			score+=regionWeights(x,y);
+			changesStates.push(new BoardState(tile,-1,1,totalChanges,score, COLOR));
 			possibles.put(tile,score);
 		}
 	}
 	
-	public void choice() {
-		
+	
+	
+	public String choice(Percept p) {
+		int max=Integer.MIN_VALUE;
+		String best_choice ="";
+		while(!changesStates.isEmpty()) {
+			BoardState bs=changesStates.pop();
+			int value = minimax(p, bs);
+			if(value > max) {
+				best_choice = bs.changed;
+				max=value;
+			}
+			
+		}
+		return best_choice;
 	}
 	
-	class MovementInInAnalisis {
-		public int x;
-		public int y;
-		public int i;
-		public int j;
-		
-		
-		public MovementInInAnalisis(int x, int y, int i, int j) {
-			this.x = x;
-			this.y = y;
-			this.i = i;
-			this.j = j;
-		}
+	public int minimax(Percept p, BoardState bs) {
+		return 0;
 	}
+	
+	
+	public BoardState minimaxAnalizeValidMove(Percept p, int x, int y, BoardState bs) {
+		return null;
+	}
+	
 	
 	class BoardState {
-		public BoardState father;
 		public String changed;
+		public int max; // 1= Va Maximizar al nivel de abajo || -1=Va a Minimizar el nivel de abajo 
 		public int level;
-		public int max; // 1=Maximiza -1=Minimiza 
 		public HashMap <String, String> changedMap;
 		public int score;
 		public String color;
+		public String rival;
 		 
 		
-		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score) {
+		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
 			this.changed=changed;
 			this.max=max;
 			this.level=level;
-			this.changedMap=new HashMap<String, String>();
-			this.changedMap.putAll(changedMap);
+			this.changedMap= (HashMap <String, String>)changedMap.clone();
 			this.score=score;
+			this.color=color;
+			rival=color.equals("white") ? "black":"white";
 		}
 		
+	    public String getCell(Percept p, int x, int y) {
+	    	return getCell(p, square(x,y));
+	    }    
+	    
+	    public String getCell(Percept p, String s) {
+	    	if (!changedMap.containsKey(s)) {
+	    		return String.valueOf(p.getAttribute(s));
+	    	}
+	    	return changedMap.get(s);
+	    }
+	    
+	    
 		public void print() {
 			System.out.println("--------------------------");
 			System.out.println("Tile changed: "+changed);

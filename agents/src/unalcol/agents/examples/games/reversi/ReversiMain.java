@@ -7,6 +7,7 @@ package unalcol.agents.examples.games.reversi;
 import unalcol.agents.Agent;
 import unalcol.agents.examples.games.reversi.isi20181.mandingas.*;
 import unalcol.agents.examples.games.reversi.test1.*;
+import unalcol.agents.examples.games.reversi.test2.*;
 /**
  *
  * @author Jonatan
@@ -14,8 +15,8 @@ import unalcol.agents.examples.games.reversi.test1.*;
 public class ReversiMain {
   public static void main( String[] argv ){
     // Reflection
-    Agent w_agent = new Agent( new Mandingas_Agent("white") );
-    Agent b_agent = new Agent( new Mandingas_Agent1("black") );
+    Agent w_agent = new Agent( new Mandingas_Agent1("white") );
+    Agent b_agent = new Agent( new Mandingas_Agent2("black") );
     
     ReversiMainFrame frame = new ReversiMainFrame( w_agent, b_agent );
     frame.setVisible(true);
