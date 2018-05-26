@@ -45,7 +45,7 @@ public class Board2 {
     }   
     
 
-	public void regions(int size) {
+	public void regions(int size, Percept p) {
 		region4=new ArrayDeque<String>();
 	    region3=new ArrayDeque<String>();
 	    region2=new ArrayDeque<String>();
@@ -57,7 +57,8 @@ public class Board2 {
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
         		region1.add(i+":"+j);
-        		empty.add(i+":"+j);
+        		if(getCell(p,i,j).equals("space"))
+        			empty.add(i+":"+j);
         	}
     	}
     	
@@ -127,26 +128,33 @@ public class Board2 {
 		}
 	}
 	
-	public void findAllMoves(Percept p) {
+	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
-		possibles = new HashMap<String, Integer>();
-		ArrayDeque <String> toAnalize=new ArrayDeque<String>();
-		toAnalize.addAll(empty);
+		HashMap <String,String> empty=new HashMap<String,String>();
 		
-		for(String s: toAnalize) {
-			if(getCell(p,s).equals("space")) {
-				String []ij = s.split(":");
-				int i=Integer.valueOf(ij[0]);
-				int j=Integer.valueOf(ij[1]);
-				analizeValidMove(p, i, j);
-			}else {
-				empty.remove(s);
-			}
+		//Genera el empty solo sera usado en la primera jugada
+		for(int i=0;i<SIZE;i++) {
+    		for(int j=0;j<SIZE;j++) {
+				if(getCell(p,i,j).equals("space")) {
+					empty.put(square(i, j), "regionWeight");
+				}
+    		}
 		}
+		
+		//Iteramos en el empty
+		for(String s:empty.keySet()){
+			String []ij = s.split(":");
+			int i=Integer.valueOf(ij[0]);
+			int j=Integer.valueOf(ij[1]);
+			//Analiza el movimiento y lo agrega solo si fue valido
+			BoardState validMove = analizeValidMove(p, i, j, (HashMap <String,String>) empty.clone());
+			if(validMove!=null) changesStates.add(validMove);			
+		}
+		return changesStates;
 	}
 	
 
-	public void analizeValidMove(Percept p, int x, int y) {
+	public BoardState analizeValidMove(Percept p, int x, int y, HashMap <String,String> empty) {
 		int score=1;
 		boolean changes=false;
 		String tile=square(x,y);
@@ -191,7 +199,6 @@ public class Board2 {
 				if(n.equals(COLOR) && found) {
 					changes=true;
 					score+=tmpScore;
-					possibles.put(tile,score);
 					totalChanges.putAll(tmp);
 				}
 			}
@@ -201,13 +208,15 @@ public class Board2 {
 		if(changes) {
 			totalChanges.put(tile, COLOR);
 			score+=regionWeights(x,y);
-			changesStates.push(new BoardState(tile,-1,1,totalChanges,score, COLOR));
-			possibles.put(tile,score);
+			empty.remove(square(x, y));
+			return new BoardState(tile,-1,1,totalChanges,score, COLOR, empty);			
 		}
+		return null;
 	}
 	
 	
 	public String choice(Percept p) {
+		findAllMoves(p);
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";
 		while(!changesStates.isEmpty()) {
@@ -230,17 +239,15 @@ public class Board2 {
 			return bs.score;
 		}
 		
-		for(String s: toAnalize) {
-			if(bs.getCell(p, s).equals("space")) {
-				String []ij = s.split(":");
-				int i=Integer.valueOf(ij[0]);
-				int j=Integer.valueOf(ij[1]);
-				BoardState newState=minimaxAnalizeValidMove(p, i, j, bs);
-				if(newState==null)
-					continue;
-				int value = minimax_decision(p, newState)*bs.max;
-				max = value>max ? value:max;
-			}
+		for(String s: toAnalize) {			
+			String []ij = s.split(":");
+			int i=Integer.valueOf(ij[0]);
+			int j=Integer.valueOf(ij[1]);
+			BoardState newState=minimaxAnalizeValidMove(p, i, j, bs);
+			if(newState==null)
+				continue;
+			int value = minimax_decision(p, newState)*bs.max;
+			max = value>max ? value:max;
 		}
 		
 		if(max==Integer.MIN_VALUE)
@@ -302,7 +309,9 @@ public class Board2 {
 			totalChanges.put(tile, bs.rival);
 			int newMax = -bs.max;
 			int nScore = bs.score + score*bs.max;
-			return new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival);
+			HashMap <String, String> empty = (HashMap <String, String>) bs.empty.clone();
+			empty.remove(square(x, y));
+			return new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival, empty);
 		}
 		return null;
 	}
@@ -316,15 +325,16 @@ public class Board2 {
 		public int score;
 		public String color;
 		public String rival;
-		 
+		public HashMap <String, String> empty; 
 		
-		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
+		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color, HashMap <String, String> empty) {
 			this.changed=changed;
 			this.max=max;
 			this.level=level;
 			this.changedMap= (HashMap <String, String>)changedMap.clone();
 			this.score=score;
 			this.color=color;
+			this.empty = empty;
 			rival=color.equals("white") ? "black":"white";
 		}
 		

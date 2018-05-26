@@ -40,12 +40,11 @@ public class Mandingas_Agent2 implements AgentProgram {
     	
     	if(firstTime) {
     		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
-    		board.regions(size);
+    		board.regions(size, p);
     		firstTime=false;
     	}    	
     	
         if(p.getAttribute(percepts[TURN]).equals(color)){
-        	board.findAllMoves(p);
         	String choice = board.choice(p);
         	if(!choice.equals("")) {
         		return new Action(choice+":"+color);
