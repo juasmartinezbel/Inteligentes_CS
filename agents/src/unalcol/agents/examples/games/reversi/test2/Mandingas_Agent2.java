@@ -46,13 +46,10 @@ public class Mandingas_Agent2 implements AgentProgram {
     	
         if(p.getAttribute(percepts[TURN]).equals(color)){
         	board.findAllMoves(p);
-        	HashMap <String, Integer> possibles = board.possibles;
-    		if(possibles.size()>0) {
-    			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
-    			return new Action(g + ":" + color);
-    		}else {
-    			return new Action(PASS);
-    		}
+        	String choice = board.choice(p);
+        	if(!choice.equals("")) {
+        		return new Action(choice+":"+color);
+        	}
         }
         return new Action(PASS);
     }

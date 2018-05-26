@@ -207,28 +207,103 @@ public class Board2 {
 	}
 	
 	
-	
 	public String choice(Percept p) {
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";
 		while(!changesStates.isEmpty()) {
 			BoardState bs=changesStates.pop();
-			int value = minimax(p, bs);
+			int value = minimax_decision(p, bs);
 			if(value > max) {
 				best_choice = bs.changed;
 				max=value;
 			}
-			
 		}
 		return best_choice;
 	}
 	
-	public int minimax(Percept p, BoardState bs) {
-		return 0;
+	public int minimax_decision(Percept p, BoardState bs) {
+		ArrayDeque <String> toAnalize = empty.clone();
+		toAnalize.remove(bs.changed);
+		int max=Integer.MIN_VALUE;
+		
+		if(bs.level>=LEVEL_DEPTH) {
+			return bs.score;
+		}
+		
+		for(String s: toAnalize) {
+			if(bs.getCell(p, s).equals("space")) {
+				String []ij = s.split(":");
+				int i=Integer.valueOf(ij[0]);
+				int j=Integer.valueOf(ij[1]);
+				BoardState newState=minimaxAnalizeValidMove(p, i, j, bs);
+				if(newState==null)
+					continue;
+				int value = minimax_decision(p, newState)*bs.max;
+				max = value>max ? value:max;
+			}
+		}
+		
+		if(max==Integer.MIN_VALUE)
+			max=bs.score;
+		
+		return max*bs.max;
 	}
 	
-	
 	public BoardState minimaxAnalizeValidMove(Percept p, int x, int y, BoardState bs) {
+		HashMap <String, String> totalChanges = (HashMap <String, String>) bs.changedMap.clone();
+		int score=1;
+		String tile=square(x,y);
+		boolean changes=false;
+		for(int i=-1; i<2; i++) {
+			if((x+i)<0 || (x+i)>=SIZE)
+				continue;
+			
+			for(int j=-1; j<2; j++) {
+				if((y+j)<0 || (y+j)>=SIZE)
+					continue;
+				
+				if((j==0&&i==0))
+					continue;
+				
+				int actualX= x+i;
+				int actualY= y+j;
+				String n=bs.getCell(p, actualX, actualY);
+				
+				if (!n.equals(bs.color)) 
+					continue;
+					
+				if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*j)>=SIZE)
+					continue;
+				
+				int tmpScore=0;
+				boolean found=true;
+				HashMap <String, String> tmp=new HashMap<String,String>();
+				while(n.equals(bs.color)) {
+					tmp.put(square(actualX,actualY),bs.rival);
+					tmpScore+=1;
+					actualX+=i;
+					actualY+=j;
+					if((actualX)<0 || (actualX)>=SIZE || (actualY)<0 || (actualY)>=SIZE) {
+						found=false;
+						break;
+					}
+					n=bs.getCell(p, actualX, actualY);
+				}
+				
+				if(n.equals(bs.rival) && found) {
+					changes=true;
+					score+=tmpScore;
+					totalChanges.putAll(tmp);
+				}
+			}
+		}
+		
+		if(changes) {
+			totalChanges.put(tile, bs.rival);
+			int newMax = -bs.max;
+			int nScore = bs.score + score*bs.max;
+			return new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival);
+		}
 		return null;
 	}
 	
