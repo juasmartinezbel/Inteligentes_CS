@@ -179,15 +179,6 @@ public class Board1 {
 		}
 		return score;
 	}
-
-	
-	public void initAlphaBeta() {
-		for(int i = 0; i<LEVEL_DEPTH; i++)
-			alphaBeta[i] = Integer.MIN_VALUE;
-	}
-	
-	
-	
 	
 	
 /**************************************************************
@@ -298,7 +289,6 @@ public class Board1 {
 	 * @return
 	 */
 	public String choice(Percept p) {
-		initAlphaBeta();
 		findAllMoves(p);
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";

@@ -8,9 +8,7 @@ import unalcol.agents.Percept;
 public class Board2 {
 	
 	public ArrayDeque <BoardState> changesStates;
-    public ArrayDeque <String> region4;
-    public ArrayDeque <String> region3;
-    public ArrayDeque <String> region2;
+	public HashMap <String, Integer> regions;
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
@@ -90,106 +88,105 @@ public class Board2 {
 	
 	
 	
-/**************************************************************
- **************************************************************
- * 
- * Funciones de euristicas de regiones
- *
- *************************************************************
- *************************************************************/
-	
-	/**
-	 * Me inicializa las regiones y lista vacía
-	 * @param size
-	 * @param p
-	 */
-	public void regions(int size, Percept p) {
-		region4=new ArrayDeque<String>();
-	    region3=new ArrayDeque<String>();
-	    region2=new ArrayDeque<String>();
-	    empty=new ArrayDeque<String>();
-		SIZE=size;
+	/**************************************************************
+	 **************************************************************
+	 * 
+	 * Funciones de euristicas de regiones
+	 *
+	 *************************************************************
+	 *************************************************************/
 		
-    	int border=(size-1);
-    	for(int i=0;i<size;i++) {
-    		for(int j=0;j<size;j++) {
-        		if(getCell(p,i,j).equals("space"))
-        			empty.add(i+":"+j);
-        	}
-    	}
-    	
-    	//Region 4: Corners, Best Priority
-    	region4.add("0:0"); region4.add("0:"+border);
-    	region4.add(border+":0"); region4.add(border+":"+border);
-    	
-    	//Region 3: Buffer, Bad Priority
-    	int buffer=(border-1);
-    	region3.add("1:0"); region3.add("0:1"); region3.add("1:1");
-    	region3.add(buffer+":0"); region3.add(border+":1"); region3.add(buffer+":1");
-    	region3.add("0:"+buffer); region3.add("1:"+buffer); region3.add("1:"+border);
-    	region3.add(border+":"+buffer); region3.add(buffer+":"+buffer); region3.add(buffer+":"+border);
-    	
-    	//Region 2: Edges, Good Priority
-    	int edges=size-4;
-    	
-    	for(int i=0;i<4;i++) {
-    		for(int j=2;j<(2+edges);j++) {
-    			switch(i) {
-    				case 0:
-    					region2.add("0:"+j);
-    					break;
-    				case 1:
-    					region2.add(j+":0");
-    					break;
-    				case 2:
-    					region2.add(border+":"+j);
-    					break;
-    				case 3:
-    					region2.add(j+":"+border);
-    					break;
-    			}
-    		}
-    	}
-    }
-	
-	
-	/**
-	 * Me mira si se aplica la euristica de pesos según la región
-	 * @param size
-	 * @param p
-	 */
-	public int regionWeights(int x, int y) {
-		int score=0;
-		if(!EURISTHIC)
-			return 0;
-		String s=square(x,y);
-		//region4: Corners [Best Priority]
-		//region2: Borders [Second Best Priority]
-		//region3: Buffer  [Bad Priority]
-		if(region4.contains(s)) {
-			score=SIZE;
-			region2.add(square(x+1,y));
-			region2.add(square(x,y+1));
-			region2.add(square(x+1,y+1));
-		}else if(region2.contains(s)) {
-			score=(int)SIZE/3;
-		}else if(region3.contains(s)) {
-			score=-SIZE/2;
+		/**
+		 * Me inicializa las regiones y lista vacía
+		 * @param size
+		 * @param p
+		 */
+		public void regions(int size, Percept p) {
+			regions = new HashMap <String, Integer>();
+		    empty=new ArrayDeque<String>();
+			SIZE=size;
+			
+	    	int border=(size-1);
+	    	for(int i=0;i<size;i++) {
+	    		for(int j=0;j<size;j++) {
+	        		if(getCell(p,i,j).equals("space"))
+	        			empty.add(i+":"+j);
+	        	}
+	    	}
+	    	
+	    	//Region 4: Corners, Best Priority
+	    	regions.put("0:0",4); regions.put("0:"+border,4);
+	    	regions.put(border+":0",4); regions.put(border+":"+border,4);
+	    	
+	    	//Region 3: Buffer, Bad Priority
+	    	int buffer=(border-1);
+	    	regions.put("1:0",3); regions.put("0:1",3); regions.put("1:1",3);
+	    	regions.put(buffer+":0",3); regions.put(border+":1",3); regions.put(buffer+":1",3);
+	    	regions.put("0:"+buffer,3); regions.put("1:"+buffer,3); regions.put("1:"+border,3);
+	    	regions.put(border+":"+buffer,3); regions.put(buffer+":"+buffer,3); regions.put(buffer+":"+border,3);
+	    	
+	    	//Region 2: Edges, Good Priority
+	    	int edges=size-4;
+	    	
+	    	for(int i=0;i<4;i++) {
+	    		for(int j=2;j<(2+edges);j++) {
+	    			switch(i) {
+	    				case 0:
+	    					regions.put("0:"+j,2);
+	    					break;
+	    				case 1:
+	    					regions.put(j+":0",2);
+	    					break;
+	    				case 2:
+	    					regions.put(border+":"+j,2);
+	    					break;
+	    				case 3:
+	    					regions.put(j+":"+border,2);
+	    					break;
+	    			}
+	    		}
+	    	}
+	    }
+		
+		
+		/**
+		 * Me mira si se aplica la euristica de pesos según la región
+		 * @param size
+		 * @param p
+		 */
+		public int regionWeights(int x, int y) {
+			int score=0;
+			String s=square(x,y);
+			Integer r = regions.get(s);
+			if(!EURISTHIC) return 0;
+			
+			if (r==null) { score=0;}
+			
+		
+			//region4: Corners [Best Priority]
+			//region2: Borders [Second Best Priority]
+			//region3: Buffer  [Bad Priority]
+			else if(r==4) {
+				score=SIZE;
+				regions.put(square(x+1,y),2);
+				regions.put(square(x,y+1),2);
+				regions.put(square(x+1,y+1),2);
+			}else if(r==2) {
+				score=(int)SIZE/3;
+			}else if(r==3) {
+				score=-SIZE/2;
+			}
+			return score;
 		}
-		return score;
-	}
 
-	
-	public void initAlphaBeta() {
-		for(int i = 0; i<LEVEL_DEPTH; i++)
-			alphaBeta[i] = Integer.MIN_VALUE;
-	}
-	
-	
-	
-	
-	
-/**************************************************************
+		
+		
+		
+		
+		
+		
+		
+ /**************************************************************
  **************************************************************
  * 
  * Funciones de Busqueda general de siguiente paso
@@ -297,7 +294,6 @@ public class Board2 {
 	 * @return
 	 */
 	public String choice(Percept p) {
-		initAlphaBeta();
 		findAllMoves(p);
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";
