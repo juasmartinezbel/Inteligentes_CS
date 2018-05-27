@@ -10,7 +10,7 @@ public class Board1 {
 	
 	public ArrayDeque <BoardState> changesStates;
     public HashMap <String, Integer> regions;
-    public ArrayDeque <String> empty;
+    public HashMap<String, Integer> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
     private static final boolean EURISTHIC=true;
@@ -104,14 +104,14 @@ public class Board1 {
 	 */
 	public void regions(int size, Percept p) {
 		regions = new HashMap <String, Integer>();
-	    empty=new ArrayDeque<String>();
+	    empty=new HashMap<String, Integer>();
 		SIZE=size;
 		
     	int border=(size-1);
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
         		if(getCell(p,i,j).equals("space"))
-        			empty.add(i+":"+j);
+        			empty.put(i+":"+j, null);
         	}
     	}
     	
@@ -207,14 +207,14 @@ public class Board1 {
 	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
 		//Creamos un ArrayDeque de los vacíos
-		ArrayDeque <String> localEmpty= empty.clone();
+		HashMap<String, Integer> localEmpty= (HashMap<String, Integer>) empty.clone();
 		
 		
 		/*Iteramos el clon de empty, si no es ficha, se remueves
 		 * En teoría, será solo una ficha el cambio, la que puso el rival,
 		 * Ya que el mapa se actualizará automaticamente con la decisión
 		 */
-		for(String s: localEmpty){
+		for(String s: localEmpty.keySet()){
 			if(getCell(p, s).equals("space")) {
 				int [] ij=splitString(s);
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
@@ -344,7 +344,7 @@ public class Board1 {
 		}
 		alphaBeta[bs.level]=Integer.MIN_VALUE;
 				
-		for(String s: bs.emptyTiles) {	
+		for(String s: bs.emptyTiles.keySet()) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
@@ -512,7 +512,7 @@ public class Board1 {
 		public int score;
 		public String color;
 		public String rival;
-		public ArrayDeque <String> emptyTiles; 
+		public HashMap<String, Integer> emptyTiles; 
 		
 		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
 			this.changed=changed;
@@ -526,8 +526,8 @@ public class Board1 {
 		
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.
-		public void setEmpty(ArrayDeque<String> e) {
-			emptyTiles = e.clone();
+		public void setEmpty(HashMap<String, Integer> e) {
+			emptyTiles = (HashMap<String, Integer>) e.clone();
 			emptyTiles.remove(changed);
 		}
 		
