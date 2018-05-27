@@ -33,27 +33,22 @@ public class Mandingas_Agent1 implements AgentProgram {
         board = new Board1(color, rival);
         firstTime=true;
     }
-    boolean u=true;
+    
     @Override
     public Action compute(Percept p) {
     	firstTime=board.SIZE!=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     	
     	if(firstTime) {
     		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
-    		board.regions(size);
+    		board.regions(size, p);
     		firstTime=false;
     	}    	
     	
         if(p.getAttribute(percepts[TURN]).equals(color)){
-        	board.findAllMoves(p);
-        	HashMap <String, Integer> possibles = board.possibles;
-        	u=true;
-    		if(possibles.size()>0) {
-    			String g=Collections.max(possibles.entrySet(), Map.Entry.comparingByValue()).getKey();
-    			return new Action(g + ":" + color);
-    		}else {
-    			return new Action(PASS);
-    		}
+        	String choice = board.choice(p);
+        	if(!choice.equals("")) {
+        		return new Action(choice+":"+color);
+        	}
         }
         return new Action(PASS);
     }
