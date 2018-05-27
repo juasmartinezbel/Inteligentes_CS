@@ -11,7 +11,6 @@ public class Board2 {
     public ArrayDeque <String> region4;
     public ArrayDeque <String> region3;
     public ArrayDeque <String> region2;
-    public ArrayDeque <String> region1;
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
@@ -108,14 +107,12 @@ public class Board2 {
 		region4=new ArrayDeque<String>();
 	    region3=new ArrayDeque<String>();
 	    region2=new ArrayDeque<String>();
-	    region1=new ArrayDeque<String>();
 	    empty=new ArrayDeque<String>();
 		SIZE=size;
 		
     	int border=(size-1);
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
-        		region1.add(i+":"+j);
         		if(getCell(p,i,j).equals("space"))
         			empty.add(i+":"+j);
         	}
@@ -153,11 +150,6 @@ public class Board2 {
     			}
     		}
     	}
-    	
-    	//Region 1: Center. Neutral Priority
-    	region1.removeAll(region2);
-    	region1.removeAll(region3);
-    	region1.removeAll(region4);
     }
 	
 	
@@ -356,15 +348,14 @@ public class Board2 {
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			//if(!alpha_beta_analisis(value, bs)) return value;
-			max = value>max ? value:max;
+			if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
 		}
 		
 		if(max==Integer.MIN_VALUE)
 			max=bs.score;
 		
-		
-		//alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
+		//Busca el nuevo Alpha-Beta para esa sección del sub-Arbol
+		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
 		
@@ -425,7 +416,7 @@ public class Board2 {
 		if(ab==Integer.MIN_VALUE)
 			return true;
 		
-		if(value>ab)
+		if(value>=ab)
 			return false;
 		return true;
 		

@@ -8,11 +8,10 @@ import unalcol.agents.Percept;
 public class Board1 {
 	
 	public ArrayDeque <BoardState> changesStates;
-    public ArrayDeque <String> region4;
-    public ArrayDeque <String> region3;
-    public ArrayDeque <String> region2;
-    public ArrayDeque <String> region1;
-    public ArrayDeque <String> empty;
+    public HashMap <String, Integer> region4;
+    public HashMap <String, Integer> region3;
+    public HashMap <String, Integer> region2;
+    public HashMap <String, Integer> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
     private static final boolean EURISTHIC=false;
@@ -105,32 +104,30 @@ public class Board1 {
 	 * @param p
 	 */
 	public void regions(int size, Percept p) {
-		region4=new ArrayDeque<String>();
-	    region3=new ArrayDeque<String>();
-	    region2=new ArrayDeque<String>();
-	    region1=new ArrayDeque<String>();
-	    empty=new ArrayDeque<String>();
+		region4=new HashMap <String, Integer>();
+	    region3=new HashMap <String, Integer>();
+	    region2=new HashMap <String, Integer>();
+	    empty=new HashMap <String, Integer>();
 		SIZE=size;
 		
     	int border=(size-1);
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
-        		region1.add(i+":"+j);
         		if(getCell(p,i,j).equals("space"))
-        			empty.add(i+":"+j);
+        			empty.put(i+":"+j,0);
         	}
     	}
     	
     	//Region 4: Corners, Best Priority
-    	region4.add("0:0"); region4.add("0:"+border);
-    	region4.add(border+":0"); region4.add(border+":"+border);
+    	region4.put("0:0",0); region4.put("0:"+border,0);
+    	region4.put(border+":0",0); region4.put(border+":"+border,0);
     	
     	//Region 3: Buffer, Bad Priority
     	int buffer=(border-1);
-    	region3.add("1:0"); region3.add("0:1"); region3.add("1:1");
-    	region3.add(buffer+":0"); region3.add(border+":1"); region3.add(buffer+":1");
-    	region3.add("0:"+buffer); region3.add("1:"+buffer); region3.add("1:"+border);
-    	region3.add(border+":"+buffer); region3.add(buffer+":"+buffer); region3.add(buffer+":"+border);
+    	region3.put("1:0",0); region3.put("0:1",0); region3.put("1:1",0);
+    	region3.put(buffer+":0",0); region3.put(border+":1",0); region3.put(buffer+":1",0);
+    	region3.put("0:"+buffer,0); region3.put("1:"+buffer,0); region3.put("1:"+border,0);
+    	region3.put(border+":"+buffer,0); region3.put(buffer+":"+buffer,0); region3.put(buffer+":"+border,0);
     	
     	//Region 2: Edges, Good Priority
     	int edges=size-4;
@@ -139,25 +136,20 @@ public class Board1 {
     		for(int j=2;j<(2+edges);j++) {
     			switch(i) {
     				case 0:
-    					region2.add("0:"+j);
+    					region2.put("0:"+j,0);
     					break;
     				case 1:
-    					region2.add(j+":0");
+    					region2.put(j+":0",0);
     					break;
     				case 2:
-    					region2.add(border+":"+j);
+    					region2.put(border+":"+j,0);
     					break;
     				case 3:
-    					region2.add(j+":"+border);
+    					region2.put(j+":"+border,0);
     					break;
     			}
     		}
     	}
-    	
-    	//Region 1: Center. Neutral Priority
-    	region1.removeAll(region2);
-    	region1.removeAll(region3);
-    	region1.removeAll(region4);
     }
 	
 	
@@ -174,14 +166,14 @@ public class Board1 {
 		//region4: Corners [Best Priority]
 		//region2: Borders [Second Best Priority]
 		//region3: Buffer  [Bad Priority]
-		if(region4.contains(s)) {
+		if(region4.containsKey(s)) {
 			score=SIZE;
-			region2.add(square(x+1,y));
-			region2.add(square(x,y+1));
-			region2.add(square(x+1,y+1));
-		}else if(region2.contains(s)) {
+			region2.put(square(x+1,y),0);
+			region2.put(square(x,y+1),0);
+			region2.put(square(x+1,y+1),0);
+		}else if(region2.containsKey(s)) {
 			score=(int)SIZE/4;
-		}else if(region3.contains(s)) {
+		}else if(region3.containsKey(s)) {
 			score=-SIZE/2;
 		}
 		return score;
@@ -214,14 +206,14 @@ public class Board1 {
 	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
 		//Creamos un ArrayDeque de los vacíos
-		ArrayDeque <String> localEmpty= empty.clone();
+		HashMap <String, Integer> localEmpty= (HashMap <String, Integer>)empty.clone();
 		
 		
 		/*Iteramos el clon de empty, si no es ficha, se remueves
 		 * En teoría, será solo una ficha el cambio, la que puso el rival,
 		 * Ya que el mapa se actualizará automaticamente con la decisión
 		 */
-		for(String s: localEmpty){
+		for(String s: localEmpty.keySet()){
 			if(getCell(p, s).equals("space")) {
 				int [] ij=splitString(s);
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
@@ -351,19 +343,19 @@ public int minimax_decision(Percept p, BoardState bs) {
 		}
 		alphaBeta[bs.level]=Integer.MIN_VALUE;
 				
-		for(String s: bs.emptyTiles) {	
+		for(String s: bs.emptyTiles.keySet()) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			if(!alpha_beta_analisis(value, bs)) return value;
+			if(!alpha_beta_analisis(value, bs)) return value;//Si no cumple, retorna
 			max = value>max ? value:max;
 		}
 		
 		if(max==Integer.MIN_VALUE)
 			max=bs.score;
 		
-		
+		//Busca el nuevo Alpha-Beta para esa sección del sub-Arbol
 		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
@@ -519,7 +511,7 @@ public int minimax_decision(Percept p, BoardState bs) {
 		public int score;
 		public String color;
 		public String rival;
-		public ArrayDeque <String> emptyTiles; 
+		public HashMap <String, Integer> emptyTiles; 
 		
 		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
 			this.changed=changed;
@@ -533,8 +525,8 @@ public int minimax_decision(Percept p, BoardState bs) {
 		
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.
-		public void setEmpty(ArrayDeque<String> e) {
-			emptyTiles = e.clone();
+		public void setEmpty(HashMap <String, Integer> e) {
+			emptyTiles = (HashMap <String, Integer>)e.clone();
 			emptyTiles.remove(changed);
 		}
 		
