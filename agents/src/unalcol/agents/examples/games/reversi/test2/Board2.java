@@ -14,7 +14,7 @@ public class Board2 {
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=false;
+    private static final boolean EURISTHIC=true;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
@@ -172,7 +172,7 @@ public class Board2 {
 			region2.add(square(x,y+1));
 			region2.add(square(x+1,y+1));
 		}else if(region2.contains(s)) {
-			score=(int)SIZE/4;
+			score=(int)SIZE/3;
 		}else if(region3.contains(s)) {
 			score=-SIZE/2;
 		}

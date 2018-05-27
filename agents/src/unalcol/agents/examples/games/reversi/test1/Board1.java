@@ -1,5 +1,6 @@
 package unalcol.agents.examples.games.reversi.test1;
 
+
 import java.util.*;
 
 import unalcol.agents.Percept;
@@ -8,13 +9,11 @@ import unalcol.agents.Percept;
 public class Board1 {
 	
 	public ArrayDeque <BoardState> changesStates;
-    public HashMap <String, Integer> region4;
-    public HashMap <String, Integer> region3;
-    public HashMap <String, Integer> region2;
-    public HashMap <String, Integer> empty;
+    public HashMap <String, Integer> regions;
+    public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=false;
+    private static final boolean EURISTHIC=true;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
@@ -104,30 +103,28 @@ public class Board1 {
 	 * @param p
 	 */
 	public void regions(int size, Percept p) {
-		region4=new HashMap <String, Integer>();
-	    region3=new HashMap <String, Integer>();
-	    region2=new HashMap <String, Integer>();
-	    empty=new HashMap <String, Integer>();
+		regions = new HashMap <String, Integer>();
+	    empty=new ArrayDeque<String>();
 		SIZE=size;
 		
     	int border=(size-1);
     	for(int i=0;i<size;i++) {
     		for(int j=0;j<size;j++) {
         		if(getCell(p,i,j).equals("space"))
-        			empty.put(i+":"+j,0);
+        			empty.add(i+":"+j);
         	}
     	}
     	
     	//Region 4: Corners, Best Priority
-    	region4.put("0:0",0); region4.put("0:"+border,0);
-    	region4.put(border+":0",0); region4.put(border+":"+border,0);
+    	regions.put("0:0",4); regions.put("0:"+border,4);
+    	regions.put(border+":0",4); regions.put(border+":"+border,4);
     	
     	//Region 3: Buffer, Bad Priority
     	int buffer=(border-1);
-    	region3.put("1:0",0); region3.put("0:1",0); region3.put("1:1",0);
-    	region3.put(buffer+":0",0); region3.put(border+":1",0); region3.put(buffer+":1",0);
-    	region3.put("0:"+buffer,0); region3.put("1:"+buffer,0); region3.put("1:"+border,0);
-    	region3.put(border+":"+buffer,0); region3.put(buffer+":"+buffer,0); region3.put(buffer+":"+border,0);
+    	regions.put("1:0",3); regions.put("0:1",3); regions.put("1:1",3);
+    	regions.put(buffer+":0",3); regions.put(border+":1",3); regions.put(buffer+":1",3);
+    	regions.put("0:"+buffer,3); regions.put("1:"+buffer,3); regions.put("1:"+border,3);
+    	regions.put(border+":"+buffer,3); regions.put(buffer+":"+buffer,3); regions.put(buffer+":"+border,3);
     	
     	//Region 2: Edges, Good Priority
     	int edges=size-4;
@@ -136,16 +133,16 @@ public class Board1 {
     		for(int j=2;j<(2+edges);j++) {
     			switch(i) {
     				case 0:
-    					region2.put("0:"+j,0);
+    					regions.put("0:"+j,2);
     					break;
     				case 1:
-    					region2.put(j+":0",0);
+    					regions.put(j+":0",2);
     					break;
     				case 2:
-    					region2.put(border+":"+j,0);
+    					regions.put(border+":"+j,2);
     					break;
     				case 3:
-    					region2.put(j+":"+border,0);
+    					regions.put(j+":"+border,2);
     					break;
     			}
     		}
@@ -160,20 +157,24 @@ public class Board1 {
 	 */
 	public int regionWeights(int x, int y) {
 		int score=0;
-		if(!EURISTHIC)
-			return 0;
 		String s=square(x,y);
+		Integer r = regions.get(s);
+		if(!EURISTHIC) return 0;
+		
+		if (r==null) { score=0;}
+		
+	
 		//region4: Corners [Best Priority]
 		//region2: Borders [Second Best Priority]
 		//region3: Buffer  [Bad Priority]
-		if(region4.containsKey(s)) {
+		else if(r==4) {
 			score=SIZE;
-			region2.put(square(x+1,y),0);
-			region2.put(square(x,y+1),0);
-			region2.put(square(x+1,y+1),0);
-		}else if(region2.containsKey(s)) {
-			score=(int)SIZE/4;
-		}else if(region3.containsKey(s)) {
+			regions.put(square(x+1,y),2);
+			regions.put(square(x,y+1),2);
+			regions.put(square(x+1,y+1),2);
+		}else if(r==2) {
+			score=(int)SIZE/3;
+		}else if(r==3) {
 			score=-SIZE/2;
 		}
 		return score;
@@ -206,14 +207,14 @@ public class Board1 {
 	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
 		//Creamos un ArrayDeque de los vacíos
-		HashMap <String, Integer> localEmpty= (HashMap <String, Integer>)empty.clone();
+		ArrayDeque <String> localEmpty= empty.clone();
 		
 		
 		/*Iteramos el clon de empty, si no es ficha, se remueves
 		 * En teoría, será solo una ficha el cambio, la que puso el rival,
 		 * Ya que el mapa se actualizará automaticamente con la decisión
 		 */
-		for(String s: localEmpty.keySet()){
+		for(String s: localEmpty){
 			if(getCell(p, s).equals("space")) {
 				int [] ij=splitString(s);
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
@@ -334,7 +335,7 @@ public class Board1 {
 	 * @param bs
 	 * @return
 	 */
-public int minimax_decision(Percept p, BoardState bs) {
+	public int minimax_decision(Percept p, BoardState bs) {
 		
 		int max=Integer.MIN_VALUE;
 		
@@ -343,13 +344,12 @@ public int minimax_decision(Percept p, BoardState bs) {
 		}
 		alphaBeta[bs.level]=Integer.MIN_VALUE;
 				
-		for(String s: bs.emptyTiles.keySet()) {	
+		for(String s: bs.emptyTiles) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			if(!alpha_beta_analisis(value, bs)) return value;//Si no cumple, retorna
-			max = value>max ? value:max;
+			if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
 		}
 		
 		if(max==Integer.MIN_VALUE)
@@ -359,6 +359,7 @@ public int minimax_decision(Percept p, BoardState bs) {
 		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
+		
 		return max;
 	}
 	
@@ -511,7 +512,7 @@ public int minimax_decision(Percept p, BoardState bs) {
 		public int score;
 		public String color;
 		public String rival;
-		public HashMap <String, Integer> emptyTiles; 
+		public ArrayDeque <String> emptyTiles; 
 		
 		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
 			this.changed=changed;
@@ -525,8 +526,8 @@ public int minimax_decision(Percept p, BoardState bs) {
 		
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.
-		public void setEmpty(HashMap <String, Integer> e) {
-			emptyTiles = (HashMap <String, Integer>)e.clone();
+		public void setEmpty(ArrayDeque<String> e) {
+			emptyTiles = e.clone();
 			emptyTiles.remove(changed);
 		}
 		
