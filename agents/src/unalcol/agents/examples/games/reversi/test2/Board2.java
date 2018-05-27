@@ -1,7 +1,6 @@
 package unalcol.agents.examples.games.reversi.test2;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
+import java.util.*;
 
 import unalcol.agents.Percept;
 
@@ -14,7 +13,7 @@ public class Board2 {
     public ArrayDeque <String> region2;
     public ArrayDeque <String> region1;
     public ArrayDeque <String> empty;
-    public int CurrentScore = 2;
+    public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
     private static final boolean EURISTHIC=false;
     protected String COLOR;
@@ -29,6 +28,8 @@ public class Board2 {
 	public Board2 (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
+		alphaBeta= new int[LEVEL_DEPTH];
+		
 	}
 	
 	
@@ -187,7 +188,10 @@ public class Board2 {
 	}
 
 	
-	
+	public void initAlphaBeta() {
+		for(int i = 0; i<LEVEL_DEPTH; i++)
+			alphaBeta[i] = Integer.MIN_VALUE;
+	}
 	
 	
 	
@@ -301,6 +305,7 @@ public class Board2 {
 	 * @return
 	 */
 	public String choice(Percept p) {
+		initAlphaBeta();
 		findAllMoves(p);
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";
@@ -350,13 +355,80 @@ public class Board2 {
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
+			if(!alpha_beta_analisis(value, bs)) return value;
 			max = value>max ? value:max;
 		}
 		
 		if(max==Integer.MIN_VALUE)
 			max=bs.score;
 		
-		return max*bs.max;
+		
+		alphaBeta[bs.level] = max>alphaBeta[bs.level] ? max:alphaBeta[bs.level];
+		
+		max=max*bs.max;
+		
+		
+		return max;
+	}
+	
+	/**
+	 * Defines, based in alpha-beta, if the analisis of the subtree should continue
+	 * @param value
+	 * @param bs
+	 * @return
+	 */
+	public boolean alpha_beta_analisis(int value, BoardState bs) {
+		
+		if(bs.level==1)
+			return true;
+		
+		
+		int ab=alphaBeta[bs.level];
+		
+		/*
+		 * En el caso de un nivel de maximizar:
+		 * ab = 12
+		 * v  = 9
+		 * 
+		 * Continua, ya que pueden haber números menores a 9 o mayores a 9.
+		 * Si hay números menores, da igual, 9 ganará la maximización
+		 * Si hay números mayores o iguales a ab, puede que esté entre 9-12 o sea mayor y se detenga la busqueda.  
+		 * 
+		 * 
+		 * ab = 12
+		 * v = 14
+		 * 
+		 * Se detiene, porque da igual que salga después, no se eligirá algo menor a 14.
+		 * Y la minimización  del nivel superior va a elegir a 12
+		 * 
+		 * 
+		 * 
+		 * ----------------------
+		 * 
+		 * En el caso de un nivel de minimizar
+		 * ab = 3
+		 * v = 14
+		 *
+		 * Continua, ya que pueden haber números menores a 14 o mayores a 14.
+		 * Si hay números mayores, da igual, 14 ganará la minimización
+		 * Si hay números menores o iguales a ab, puede que esté entre 3-14 o sea mayor y se detenga la busqueda.
+		 * 
+		 *   
+		 * ab = 3
+		 * v = 2
+		 * 
+		 * Se detiene, porque da igual que salga después, no se eligirá algo mayor a 2.
+		 * Y la maximización del nivel superior va a elegir a 3
+		 *    
+		 * 
+		 */
+		if(ab==Integer.MIN_VALUE)
+			return true;
+		
+		if(value>ab)
+			return false;
+		return true;
+		
 	}
 	
 	/**
