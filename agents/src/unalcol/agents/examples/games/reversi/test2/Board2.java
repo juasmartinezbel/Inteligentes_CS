@@ -12,7 +12,7 @@ public class Board2 {
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=true;
+    private static final boolean EURISTHIC=false;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
@@ -306,6 +306,7 @@ public class Board2 {
 				max=value;
 			}
 		}
+		empty.remove(best_choice);
 		return best_choice;
 	}
 
@@ -345,6 +346,7 @@ public class Board2 {
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
 			if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
+			max = value>max ? value:max;
 		}
 		
 		if(max==Integer.MIN_VALUE)

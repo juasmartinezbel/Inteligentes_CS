@@ -1,6 +1,5 @@
 package unalcol.agents.examples.games.reversi.test1;
 
-
 import java.util.*;
 
 import unalcol.agents.Percept;
@@ -9,11 +8,11 @@ import unalcol.agents.Percept;
 public class Board1 {
 	
 	public ArrayDeque <BoardState> changesStates;
-    public HashMap <String, Integer> regions;
-    public HashMap<String, Integer> empty;
+	public HashMap <String, Integer> regions;
+    public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=true;
+    private static final boolean EURISTHIC=false;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
@@ -89,99 +88,105 @@ public class Board1 {
 	
 	
 	
-/**************************************************************
- **************************************************************
- * 
- * Funciones de euristicas de regiones
- *
- *************************************************************
- *************************************************************/
-	
-	/**
-	 * Me inicializa las regiones y lista vacía
-	 * @param size
-	 * @param p
-	 */
-	public void regions(int size, Percept p) {
-		regions = new HashMap <String, Integer>();
-	    empty=new HashMap<String, Integer>();
-		SIZE=size;
+	/**************************************************************
+	 **************************************************************
+	 * 
+	 * Funciones de euristicas de regiones
+	 *
+	 *************************************************************
+	 *************************************************************/
 		
-    	int border=(size-1);
-    	for(int i=0;i<size;i++) {
-    		for(int j=0;j<size;j++) {
-        		if(getCell(p,i,j).equals("space"))
-        			empty.put(i+":"+j, null);
-        	}
-    	}
-    	
-    	//Region 4: Corners, Best Priority
-    	regions.put("0:0",4); regions.put("0:"+border,4);
-    	regions.put(border+":0",4); regions.put(border+":"+border,4);
-    	
-    	//Region 3: Buffer, Bad Priority
-    	int buffer=(border-1);
-    	regions.put("1:0",3); regions.put("0:1",3); regions.put("1:1",3);
-    	regions.put(buffer+":0",3); regions.put(border+":1",3); regions.put(buffer+":1",3);
-    	regions.put("0:"+buffer,3); regions.put("1:"+buffer,3); regions.put("1:"+border,3);
-    	regions.put(border+":"+buffer,3); regions.put(buffer+":"+buffer,3); regions.put(buffer+":"+border,3);
-    	
-    	//Region 2: Edges, Good Priority
-    	int edges=size-4;
-    	
-    	for(int i=0;i<4;i++) {
-    		for(int j=2;j<(2+edges);j++) {
-    			switch(i) {
-    				case 0:
-    					regions.put("0:"+j,2);
-    					break;
-    				case 1:
-    					regions.put(j+":0",2);
-    					break;
-    				case 2:
-    					regions.put(border+":"+j,2);
-    					break;
-    				case 3:
-    					regions.put(j+":"+border,2);
-    					break;
-    			}
-    		}
-    	}
-    }
-	
-	
-	/**
-	 * Me mira si se aplica la euristica de pesos según la región
-	 * @param size
-	 * @param p
-	 */
-	public int regionWeights(int x, int y) {
-		int score=0;
-		String s=square(x,y);
-		Integer r = regions.get(s);
-		if(!EURISTHIC) return 0;
+		/**
+		 * Me inicializa las regiones y lista vacía
+		 * @param size
+		 * @param p
+		 */
+		public void regions(int size, Percept p) {
+			regions = new HashMap <String, Integer>();
+		    empty=new ArrayDeque<String>();
+			SIZE=size;
+			
+	    	int border=(size-1);
+	    	for(int i=0;i<size;i++) {
+	    		for(int j=0;j<size;j++) {
+	        		if(getCell(p,i,j).equals("space"))
+	        			empty.add(i+":"+j);
+	        	}
+	    	}
+	    	
+	    	//Region 4: Corners, Best Priority
+	    	regions.put("0:0",4); regions.put("0:"+border,4);
+	    	regions.put(border+":0",4); regions.put(border+":"+border,4);
+	    	
+	    	//Region 3: Buffer, Bad Priority
+	    	int buffer=(border-1);
+	    	regions.put("1:0",3); regions.put("0:1",3); regions.put("1:1",3);
+	    	regions.put(buffer+":0",3); regions.put(border+":1",3); regions.put(buffer+":1",3);
+	    	regions.put("0:"+buffer,3); regions.put("1:"+buffer,3); regions.put("1:"+border,3);
+	    	regions.put(border+":"+buffer,3); regions.put(buffer+":"+buffer,3); regions.put(buffer+":"+border,3);
+	    	
+	    	//Region 2: Edges, Good Priority
+	    	int edges=size-4;
+	    	
+	    	for(int i=0;i<4;i++) {
+	    		for(int j=2;j<(2+edges);j++) {
+	    			switch(i) {
+	    				case 0:
+	    					regions.put("0:"+j,2);
+	    					break;
+	    				case 1:
+	    					regions.put(j+":0",2);
+	    					break;
+	    				case 2:
+	    					regions.put(border+":"+j,2);
+	    					break;
+	    				case 3:
+	    					regions.put(j+":"+border,2);
+	    					break;
+	    			}
+	    		}
+	    	}
+	    }
 		
-		if (r==null) { score=0;}
 		
-	
-		//region4: Corners [Best Priority]
-		//region2: Borders [Second Best Priority]
-		//region3: Buffer  [Bad Priority]
-		else if(r==4) {
-			score=SIZE;
-			regions.put(square(x+1,y),2);
-			regions.put(square(x,y+1),2);
-			regions.put(square(x+1,y+1),2);
-		}else if(r==2) {
-			score=(int)SIZE/3;
-		}else if(r==3) {
-			score=-SIZE/2;
+		/**
+		 * Me mira si se aplica la euristica de pesos según la región
+		 * @param size
+		 * @param p
+		 */
+		public int regionWeights(int x, int y) {
+			int score=0;
+			String s=square(x,y);
+			Integer r = regions.get(s);
+			if(!EURISTHIC) return 0;
+			
+			if (r==null) { score=0;}
+			
+		
+			//region4: Corners [Best Priority]
+			//region2: Borders [Second Best Priority]
+			//region3: Buffer  [Bad Priority]
+			else if(r==4) {
+				score=SIZE;
+				regions.put(square(x+1,y),2);
+				regions.put(square(x,y+1),2);
+				regions.put(square(x+1,y+1),2);
+			}else if(r==2) {
+				score=(int)SIZE/3;
+			}else if(r==3) {
+				score=-SIZE/2;
+			}
+			return score;
 		}
-		return score;
-	}
-	
-	
-/**************************************************************
+
+		
+		
+		
+		
+		
+		
+		
+ /**************************************************************
  **************************************************************
  * 
  * Funciones de Busqueda general de siguiente paso
@@ -198,14 +203,14 @@ public class Board1 {
 	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
 		//Creamos un ArrayDeque de los vacíos
-		HashMap<String, Integer> localEmpty= (HashMap<String, Integer>) empty.clone();
+		ArrayDeque <String> localEmpty= empty.clone();
 		
 		
 		/*Iteramos el clon de empty, si no es ficha, se remueves
 		 * En teoría, será solo una ficha el cambio, la que puso el rival,
 		 * Ya que el mapa se actualizará automaticamente con la decisión
 		 */
-		for(String s: localEmpty.keySet()){
+		for(String s: localEmpty){
 			if(getCell(p, s).equals("space")) {
 				int [] ij=splitString(s);
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
@@ -301,6 +306,7 @@ public class Board1 {
 				max=value;
 			}
 		}
+		empty.remove(best_choice);
 		return best_choice;
 	}
 
@@ -334,19 +340,20 @@ public class Board1 {
 		}
 		alphaBeta[bs.level]=Integer.MIN_VALUE;
 				
-		for(String s: bs.emptyTiles.keySet()) {	
+		for(String s: bs.emptyTiles) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
+			//if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
+			max = value>max ? value:max;
 		}
 		
 		if(max==Integer.MIN_VALUE)
 			max=bs.score;
 		
 		//Busca el nuevo Alpha-Beta para esa sección del sub-Arbol
-		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
+		//alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
 		
@@ -502,7 +509,7 @@ public class Board1 {
 		public int score;
 		public String color;
 		public String rival;
-		public HashMap<String, Integer> emptyTiles; 
+		public ArrayDeque <String> emptyTiles; 
 		
 		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
 			this.changed=changed;
@@ -516,8 +523,8 @@ public class Board1 {
 		
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.
-		public void setEmpty(HashMap<String, Integer> e) {
-			emptyTiles = (HashMap<String, Integer>) e.clone();
+		public void setEmpty(ArrayDeque<String> e) {
+			emptyTiles = e.clone();
 			emptyTiles.remove(changed);
 		}
 		
