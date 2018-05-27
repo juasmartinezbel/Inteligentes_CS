@@ -342,20 +342,21 @@ public class Board1 {
 	 * @param bs
 	 * @return
 	 */
-	public int minimax_decision(Percept p, BoardState bs) {
+public int minimax_decision(Percept p, BoardState bs) {
 		
 		int max=Integer.MIN_VALUE;
 		
 		if(bs.level>=LEVEL_DEPTH) {
 			return bs.score;
 		}
-		
+		alphaBeta[bs.level]=Integer.MIN_VALUE;
+				
 		for(String s: bs.emptyTiles) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			//if(!alpha_beta_analisis(value, bs)) return value;
+			if(!alpha_beta_analisis(value, bs)) return value;
 			max = value>max ? value:max;
 		}
 		
@@ -363,11 +364,9 @@ public class Board1 {
 			max=bs.score;
 		
 		
-		//alphaBeta[bs.level] = max>alphaBeta[bs.level] ? max:alphaBeta[bs.level];
+		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
-		
-		
 		return max;
 	}
 	
@@ -383,7 +382,7 @@ public class Board1 {
 			return true;
 		
 		
-		int ab=alphaBeta[bs.level];
+		int ab=alphaBeta[bs.level-1];
 		
 		/*
 		 * En el caso de un nivel de maximizar:
@@ -425,7 +424,7 @@ public class Board1 {
 		if(ab==Integer.MIN_VALUE)
 			return true;
 		
-		if(value>ab)
+		if(value>=ab)
 			return false;
 		return true;
 		
