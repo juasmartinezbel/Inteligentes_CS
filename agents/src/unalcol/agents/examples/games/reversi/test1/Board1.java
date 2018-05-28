@@ -10,6 +10,10 @@ public class Board1 {
 	public ArrayDeque <BoardState> changesStates;
 	public HashMap <String, Integer> regions;
     public ArrayDeque <String> empty;
+    //HashMap que me guardará los movimientos futuros
+    public HashMap <String, HashMap<String, ArrayDeque <BoardState>>> futureMoves;
+    public HashMap<String, ArrayDeque <BoardState>> possibleMoves;
+    public String currentLevel;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
     private static final boolean EURISTHIC=false;
@@ -104,6 +108,8 @@ public class Board1 {
 		public void regions(int size, Percept p) {
 			regions = new HashMap <String, Integer>();
 		    empty=new ArrayDeque<String>();
+		    futureMoves = new HashMap <String, HashMap<String, ArrayDeque <BoardState>>>();
+		    possibleMoves = new HashMap<String, ArrayDeque <BoardState>>();
 			SIZE=size;
 			
 	    	int border=(size-1);
@@ -202,21 +208,40 @@ public class Board1 {
 	 */
 	public ArrayDeque<BoardState> findAllMoves(Percept p) {
 		changesStates = new ArrayDeque<BoardState>();
+		if(!(possibleMoves==null)) {
+			if(!possibleMoves.isEmpty()) {
+				String ss="";
+				for(String s: possibleMoves.keySet()){
+					if(getCell(p,s).equals(RIVAL)){
+						ss=s;
+						break;
+					}
+				}
+				
+				if(!ss.equals("")) {
+					empty.remove(ss);
+					changesStates = possibleMoves.get(ss);
+					return changesStates;
+				}
+			}
+		}
 		//Creamos un ArrayDeque de los vacíos
 		ArrayDeque <String> localEmpty= empty.clone();
-		
 		
 		/*Iteramos el clon de empty, si no es ficha, se remueves
 		 * En teoría, será solo una ficha el cambio, la que puso el rival,
 		 * Ya que el mapa se actualizará automaticamente con la decisión
 		 */
+		
 		for(String s: localEmpty){
 			if(getCell(p, s).equals("space")) {
 				int [] ij=splitString(s);
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
-				if(validMove!=null) changesStates.add(validMove);		
+				if(validMove!=null) changesStates.add(validMove);				
 			}else {
+				
 				empty.remove(s);
+				
 			}
 		}
 		return changesStates;
@@ -233,6 +258,7 @@ public class Board1 {
 		boolean changes=false;
 		String tile=square(x,y);
 		HashMap <String,String> totalChanges=new HashMap<String,String>();
+		
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
 				continue;
@@ -295,11 +321,15 @@ public class Board1 {
 	 */
 	public String choice(Percept p) {
 		findAllMoves(p);
+		futureMoves = new HashMap <String, HashMap<String, ArrayDeque <BoardState>>>();
+		possibleMoves = new HashMap<String, ArrayDeque <BoardState>>();
 		int max=Integer.MIN_VALUE;
 		String best_choice ="";
 		while(!changesStates.isEmpty()) {
 			BoardState bs=changesStates.pop();
+			
 			bs.setEmpty(empty);
+			currentLevel=bs.changed;
 			int value = minimax_decision(p, bs);
 			if(value > max) {
 				best_choice = bs.changed;
@@ -307,6 +337,8 @@ public class Board1 {
 			}
 		}
 		empty.remove(best_choice);
+		possibleMoves = futureMoves.get(best_choice);
+		//System.out.println("Se decidió poner la opción: "+best_choice);
 		return best_choice;
 	}
 
@@ -339,21 +371,22 @@ public class Board1 {
 			return bs.score;
 		}
 		alphaBeta[bs.level]=Integer.MIN_VALUE;
-				
+		//System.out.println("LEVEL "+bs.level+": -------------------------------------");		
 		for(String s: bs.emptyTiles) {	
 			int ij[]=splitString(s);
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			//if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
+			if(!alpha_beta_analisis(value, bs)) return value; 
 			max = value>max ? value:max;
+			//Si no cumple, retorna
 		}
 		
 		if(max==Integer.MIN_VALUE)
 			max=bs.score;
 		
 		//Busca el nuevo Alpha-Beta para esa sección del sub-Arbol
-		//alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
+		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
 		
@@ -430,8 +463,11 @@ public class Board1 {
 	 */
 	public BoardState minimaxAnalizeValidMove(Percept p, int x, int y, BoardState bs) {
 		HashMap <String, String> totalChanges = (HashMap <String, String>) bs.changedMap.clone();
+		HashMap <String, String> localChanges = new HashMap <String, String>();
+		
 		int score=1;
 		String tile=square(x,y);
+		
 		boolean changes=false;
 		for(int i=-1; i<2; i++) {
 			if((x+i)<0 || (x+i)>=SIZE)
@@ -472,17 +508,39 @@ public class Board1 {
 				if(n.equals(bs.rival) && found) {
 					changes=true;
 					score+=tmpScore;
-					totalChanges.putAll(tmp);
+					localChanges.putAll(tmp);
 				}
 			}
 		}
 		
 		if(changes) {
-			totalChanges.put(tile, bs.rival);
+			
+			
+			localChanges.put(tile, bs.rival);
+			totalChanges.putAll(localChanges);
 			int newMax = -bs.max;
 			int nScore = bs.score + score*bs.max;
-			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival);
+			int nLevel = 1+bs.level;
+			
+			BoardState nbs = new BoardState(tile, newMax, nLevel, totalChanges, nScore, bs.rival);
 			nbs.setEmpty(bs.emptyTiles);
+			
+			//Guarda el arbol para saber cual es el futuro movimiento
+			if(nLevel==3) {
+				BoardState futureChoice = new BoardState(tile, newMax, 1, localChanges, score, bs.rival);
+				nbs.setEmpty(bs.emptyTiles);
+				HashMap<String, ArrayDeque<BoardState>> g = futureMoves.get(currentLevel);
+				if(g==null) 
+					g=new HashMap<String, ArrayDeque<BoardState>>();
+				
+				ArrayDeque<BoardState> s = g.get(bs.changed);
+				if(s==null) 
+					s=new ArrayDeque<BoardState>();
+				
+				s.add(futureChoice);
+				g.put(bs.changed, s);
+				futureMoves.put(currentLevel,g); 
+			}
 			return nbs;
 		}
 		return null;

@@ -47,6 +47,10 @@ public class Mandingas_Agent2 implements AgentProgram {
         if(p.getAttribute(percepts[TURN]).equals(color)){
         	String choice = board.choice(p);
         	if(!choice.equals("")) {
+        		long time = (long)(2000);
+    	        try{
+    	           Thread.sleep(time);
+    	        }catch(Exception e){}
         		return new Action(choice+":"+color);
         	}
         }
