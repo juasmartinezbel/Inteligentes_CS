@@ -117,8 +117,8 @@ public class Board {
         if( i1>=0 && j1>=0 && i1+1 < i && values[i1][j1] == val ){
             // Valid play
             for( int k=i1+1; k<i; k++ ){
-                j--;
-                values[k][j] = val;
+                j1--;
+                values[k][j1] = val;
             }
             return true;
         }
@@ -136,8 +136,8 @@ public class Board {
         if( i1>=0 && i1+1 < i && j1<values[0].length && values[i1][j1] == val ){
             // Valid play
             for( int k=i1+1; k<i; k++ ){
-                j++;
-                values[k][j] = val;
+                j1++;
+                values[k][j1] = val;
             }
             return true;
         }
