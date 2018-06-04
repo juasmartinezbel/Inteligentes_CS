@@ -34,7 +34,7 @@ public class ReversiPercept extends Percept{
                     return clock.white_time_string();
             }else{
                 if( code.equals(Reversi.BLACK + "_" + Reversi.TIME) ){
-                        return clock.white_time_string();
+                        return clock.black_time_string();
                 }else{
                     if( code.equals(Reversi.SIZE ) ){
                         return ""+board.values.length;
