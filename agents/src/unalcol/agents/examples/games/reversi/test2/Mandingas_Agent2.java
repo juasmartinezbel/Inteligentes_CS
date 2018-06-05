@@ -25,6 +25,8 @@ public class Mandingas_Agent2 implements AgentProgram {
     protected String rival;
     private Board2 board;
     private boolean firstTime;
+    protected String play; //play
+    protected int depth = 0;
     
     public Mandingas_Agent2( String color ){
         this.color = color;
@@ -33,23 +35,34 @@ public class Mandingas_Agent2 implements AgentProgram {
         RIVAL_TIME = MY_TIME==1 ? 2:1;
         board = new Board2(color, rival);
         firstTime=true;
+        play = null;
     }
     @Override
     public Action compute(Percept p) {
     	firstTime=board.SIZE!=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
     	
     	if(firstTime) {
-    		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));
+    		int size=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));    		
     		board.regions(size, p);
-    		firstTime=false;
+    		board.startBoard(p);
+    		firstTime=false;  		
     	}    	
     	
-        if(p.getAttribute(percepts[TURN]).equals(color)){
-        	String choice = board.choice(p);
-        	if(!choice.equals("")) {
-        		return new Action(choice+":"+color);
+    	if(p.getAttribute(percepts[TURN]).equals(rival)) {
+    		board.explore(p);
+    	}
+    	if(p.getAttribute(percepts[TURN]).equals(color)) {
+        	while(board.setPlay(p)) {
+//        		System.out.println(depth++);
         	}
+
+        	String choice = board.play(p);        	
+
+        	if(!choice.equals("")) {   
+        		return new Action(choice+":"+color);
+        	}       		
         }
+    	
         return new Action(PASS);
     }
 
