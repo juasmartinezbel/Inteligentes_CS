@@ -117,8 +117,8 @@ public class Board {
         if( i1>=0 && j1>=0 && i1+1 < i && values[i1][j1] == val ){
             // Valid play
             for( int k=i1+1; k<i; k++ ){
-                j1--;
-                if(j1>=0) values[k][j1] = val;
+                j1++;
+                values[k][j1] = val;
             }
             return true;
         }
@@ -136,8 +136,8 @@ public class Board {
         if( i1>=0 && i1+1 < i && j1<values[0].length && values[i1][j1] == val ){
             // Valid play
             for( int k=i1+1; k<i; k++ ){
-                j1++;
-                if(j1<values[0].length) values[k][j1] = val;
+                j1--;
+                values[k][j1] = val;
             }
             return true;
         }
@@ -252,7 +252,7 @@ public class Board {
                       g.fillOval(cj+1, ci+1, CELL_SIZE-2, CELL_SIZE-2);
                   }else{
                      if( value < 0 ){
-                        g.setColor(Color.red);
+                        g.setColor(Color.black);
                         g.fillOval(cj+1, ci+1, CELL_SIZE-2, CELL_SIZE-2);
                      }
                   }

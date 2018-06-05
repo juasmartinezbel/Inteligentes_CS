@@ -1,9 +1,5 @@
 package unalcol.agents.examples.games.reversi.test1;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import unalcol.agents.Action;
 import unalcol.agents.AgentProgram;
 import unalcol.agents.Percept;
@@ -33,7 +29,6 @@ public class Mandingas_Agent1 implements AgentProgram {
         board = new Board1(color, rival);
         firstTime=true;
     }
-    
     @Override
     public Action compute(Percept p) {
     	firstTime=board.SIZE!=Integer.valueOf((String)p.getAttribute(percepts[SIZE]));

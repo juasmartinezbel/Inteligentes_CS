@@ -12,7 +12,6 @@ public class Board1 {
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=false;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
@@ -154,11 +153,10 @@ public class Board1 {
 		 * @param size
 		 * @param p
 		 */
-		public int regionWeights(int x, int y) {
+		public int regionWeights(int x, int y, HashMap<String, Integer> regions) {
 			int score=0;
 			String s=square(x,y);
 			Integer r = regions.get(s);
-			if(!EURISTHIC) return 0;
 			
 			if (r==null) { score=0;}
 			
@@ -168,9 +166,6 @@ public class Board1 {
 			//region3: Buffer  [Bad Priority]
 			else if(r==4) {
 				score=SIZE;
-				regions.put(square(x+1,y),2);
-				regions.put(square(x,y+1),2);
-				regions.put(square(x+1,y+1),2);
 			}else if(r==2) {
 				score=(int)SIZE/3;
 			}else if(r==3) {
@@ -180,7 +175,28 @@ public class Board1 {
 		}
 
 		
-		
+		/**
+		 * Me quita la región seleccionada.
+		 * @param size
+		 * @param p
+		 */
+		public HashMap<String, Integer> removeRegion(String S , HashMap<String, Integer> regions) {
+			Integer r = regions.get(S);
+			
+			if (r!=null) {
+				int ij[] = splitString(S);
+				//region4: Corners [Best Priority]
+				//region2: Borders [Second Best Priority]
+				//region3: Buffer  [Bad Priority]
+				if(r==4) {
+					regions.put(square(ij[0]+1,ij[1]),2);
+					regions.put(square(ij[0],ij[1]+1),2);
+					regions.put(square(ij[0]+1,ij[1]+1),2);
+				}
+				regions.remove(S);
+			}
+			return regions;
+		}
 		
 		
 		
@@ -216,6 +232,7 @@ public class Board1 {
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
 				if(validMove!=null) changesStates.add(validMove);		
 			}else {
+				regions=removeRegion(s, regions);
 				empty.remove(s);
 			}
 		}
@@ -281,8 +298,8 @@ public class Board1 {
 		
 		if(changes) {
 			totalChanges.put(tile, COLOR);
-			score+=regionWeights(x,y);
-			return new BoardState(tile,-1,1,totalChanges,score, COLOR);			
+			score+=regionWeights(x,y,regions);
+			return new BoardState(tile,-1,1,totalChanges,score, COLOR, regions);			
 		}
 		return null;
 	}
@@ -307,6 +324,7 @@ public class Board1 {
 			}
 		}
 		empty.remove(best_choice);
+		regions=removeRegion(best_choice,regions);
 		return best_choice;
 	}
 
@@ -345,7 +363,7 @@ public class Board1 {
 			BoardState newState=minimaxAnalizeValidMove(p, ij[0], ij[1], bs);
 			if(newState==null) continue;
 			int value = minimax_decision(p, newState)*bs.max;
-			//if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
+			if(!alpha_beta_analisis(value, bs)) return value; //Si no cumple, retorna
 			max = value>max ? value:max;
 		}
 		
@@ -353,7 +371,7 @@ public class Board1 {
 			max=bs.score;
 		
 		//Busca el nuevo Alpha-Beta para esa sección del sub-Arbol
-		//alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
+		alphaBeta[bs.level-1] = max>alphaBeta[bs.level-1] ? max:alphaBeta[bs.level-1];
 		
 		max=max*bs.max;
 		
@@ -429,7 +447,7 @@ public class Board1 {
 	 * @return
 	 */
 	public BoardState minimaxAnalizeValidMove(Percept p, int x, int y, BoardState bs) {
-		HashMap <String, String> totalChanges = (HashMap <String, String>) bs.changedMap.clone();
+		HashMap <String, String> totalChanges = new HashMap <String, String>(bs.changedMap);
 		int score=1;
 		String tile=square(x,y);
 		boolean changes=false;
@@ -480,8 +498,9 @@ public class Board1 {
 		if(changes) {
 			totalChanges.put(tile, bs.rival);
 			int newMax = -bs.max;
+			score+=regionWeights(x,y,bs.localRegions);
 			int nScore = bs.score + score*bs.max;
-			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival);
+			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival, bs.localRegions);
 			nbs.setEmpty(bs.emptyTiles);
 			return nbs;
 		}
@@ -510,16 +529,19 @@ public class Board1 {
 		public String color;
 		public String rival;
 		public ArrayDeque <String> emptyTiles; 
-		
-		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color) {
+		public HashMap<String, Integer> localRegions; 
+		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color, HashMap <String, Integer> regions) {
 			this.changed=changed;
 			this.max=max;
 			this.level=level;
-			this.changedMap= (HashMap <String, String>)changedMap.clone();
+			this.changedMap= new HashMap <String, String>(changedMap);
 			this.score=score;
 			this.color=color;
 			rival=color.equals("white") ? "black":"white";
+			localRegions = new HashMap <String, Integer>(regions);
+			localRegions = removeRegion(changed, localRegions);
 		}
+		
 		
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.

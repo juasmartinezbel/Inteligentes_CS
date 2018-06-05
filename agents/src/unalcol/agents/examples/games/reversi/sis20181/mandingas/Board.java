@@ -1,38 +1,31 @@
-package unalcol.agents.examples.games.reversi.test2;
+package unalcol.agents.examples.games.reversi.sis20181.mandingas;
 
 import java.util.*;
 
 import unalcol.agents.Percept;
 
 
-public class Board2 {
+public class Board {
 	
 	public ArrayDeque <BoardState> changesStates;
-	public ArrayDeque <BoardState> queueStates;
-	public ArrayList <BoardState> headStates;
 	public HashMap <String, Integer> regions;
     public ArrayDeque <String> empty;
     public int [] alphaBeta;
     private static final int LEVEL_DEPTH=3;
-    private static final boolean EURISTHIC=false;
     protected String COLOR;
     protected String RIVAL;
     public int SIZE;
-    public int depth;
-    public ArrayList<Integer> pathPlay;
     
     /**
      * Inicializa el tablero
      * @param color del jugador
      * @param rival del rival
      */
-	public Board2 (String color, String rival) {
+	public Board (String color, String rival) {
 		COLOR = color;
 		RIVAL = rival;
 		alphaBeta= new int[LEVEL_DEPTH];
-		queueStates = new ArrayDeque <BoardState>();
-		headStates = new ArrayList<BoardState>();
-		pathPlay = new ArrayList<Integer>();
+		
 	}
 	
 	
@@ -90,42 +83,7 @@ public class Board2 {
 		return intij;
 	}
 	
-	public void startBoard(Percept p) {
-		if(queueStates.isEmpty()) {
-			ArrayDeque<BoardState> moves = firstMoves(p);
-			queueStates.addAll(moves);
-			headStates.addAll(moves);
-			depth = 0;
-		}
-	}
 	
-	public boolean setPlay(Percept p) {
-		int nMove=0;
-		for(BoardState state : headStates) {			
-			if(!getCell(p, state.changed).equals("space")) {
-				if(state.children == null) {
-					int nMove1 = 0;
-					ArrayList<BoardState> moves = new ArrayList<BoardState>();
-					for(String s : state.emptyTiles) {			
-						int ij[]=splitString(s);			
-						BoardState validMove = minimaxCheckValidMove(p, ij[0], ij[1], state);
-						if(validMove!=null) {
-							validMove.setPath(state.path,nMove1++);
-							moves.add(validMove);			
-						}
-					}
-					state.setChildren(moves);
-				}
-				System.out.println("DEPTH: "+depth + " NUMBER Play: " + nMove);
-				headStates = new ArrayList<BoardState>(state.children);
-				depth = state.level;
-				pathPlay.add(nMove);				
-				return true;
-			}
-			nMove++;
-		}	
-		return false;
-	}
 	
 	
 	
@@ -195,11 +153,10 @@ public class Board2 {
 		 * @param size
 		 * @param p
 		 */
-		public int regionWeights(int x, int y) {
+		public int regionWeights(int x, int y, HashMap<String, Integer> regions) {
 			int score=0;
 			String s=square(x,y);
 			Integer r = regions.get(s);
-			if(!EURISTHIC) return 0;
 			
 			if (r==null) { score=0;}
 			
@@ -209,9 +166,6 @@ public class Board2 {
 			//region3: Buffer  [Bad Priority]
 			else if(r==4) {
 				score=SIZE;
-				regions.put(square(x+1,y),2);
-				regions.put(square(x,y+1),2);
-				regions.put(square(x+1,y+1),2);
 			}else if(r==2) {
 				score=(int)SIZE/3;
 			}else if(r==3) {
@@ -221,7 +175,28 @@ public class Board2 {
 		}
 
 		
-		
+		/**
+		 * Me quita la región seleccionada.
+		 * @param size
+		 * @param p
+		 */
+		public HashMap<String, Integer> removeRegion(String S , HashMap<String, Integer> regions) {
+			Integer r = regions.get(S);
+			
+			if (r!=null) {
+				int ij[] = splitString(S);
+				//region4: Corners [Best Priority]
+				//region2: Borders [Second Best Priority]
+				//region3: Buffer  [Bad Priority]
+				if(r==4) {
+					regions.put(square(ij[0]+1,ij[1]),2);
+					regions.put(square(ij[0],ij[1]+1),2);
+					regions.put(square(ij[0]+1,ij[1]+1),2);
+				}
+				regions.remove(S);
+			}
+			return regions;
+		}
 		
 		
 		
@@ -257,13 +232,14 @@ public class Board2 {
 				BoardState validMove = analizeValidMove(p, ij[0], ij[1]);
 				if(validMove!=null) changesStates.add(validMove);		
 			}else {
+				regions=removeRegion(s, regions);
 				empty.remove(s);
 			}
 		}
 		return changesStates;
 	}
 	
-	
+
 	/**
 	 * Me analiza si un espacio vacío es potencial movimiento siguiente
 	 * @param p
@@ -317,164 +293,17 @@ public class Board2 {
 					totalChanges.putAll(tmp);
 				}
 			}
-		}		
+		}
+		
 		
 		if(changes) {
 			totalChanges.put(tile, COLOR);
-			score+=regionWeights(x,y);
-			return new BoardState(tile,-1,1,totalChanges,score, COLOR, null);			
+			score+=regionWeights(x,y,regions);
+			return new BoardState(tile,-1,1,totalChanges,score, COLOR, regions);			
 		}
 		return null;
 	}
-	
-	public String play (Percept p) {
-		int level = queueStates.getFirst().level;
-		int maxScore = Integer.MIN_VALUE;
-		BoardState bestState = headStates.get(0);
-		for(BoardState state : queueStates) {
-			while(state.level>level) {
-				state = state.father;
-			}		
-//			System.out.print(state.level + " ");
-			if(state.level == level) {
-				if(state.value > maxScore) {
-					bestState = state;
-					maxScore = state.value;
-				}
-			}
-		}
-//		System.out.println();
-		
-		System.out.println(bestState.score + " " + bestState.level);
-		while(bestState.level>depth) {
-			bestState = bestState.father;
-		}
-		System.out.println(bestState.changed);
-		return bestState.changed;
-	}
 
-	public void explore(Percept p) {
-
-		exploreLoop:
-		while(((!queueStates.isEmpty() && p.getAttribute("play").equals(RIVAL)))) {
-			
-			BoardState state = queueStates.pop();			
-			if(pathPlay.size()>0) {
-				for(int i=0; i<pathPlay.size(); i++) {
-					if(state.path.get(i)!=pathPlay.get(i)) continue exploreLoop;	
-				}		
-			}			
-					
-			
-			System.out.println("Path:");
-			for(int e : state.path) {
-				System.out.print(e + " ");
-			}
-			System.out.println();			
-			
-			ArrayList<BoardState> children = new ArrayList<BoardState>();
-			int nMoves = 0;
-			for(String s : state.emptyTiles) {	
-				int ij[] = splitString(s);
-				BoardState newState = minimaxAnalizeValidMove(p, ij[0], ij[1], state);
-				if(newState!=null) {
-					newState.setPath(state.path, nMoves++);
-					queueStates.add(newState);
-					children.add(newState);
-					newState.setFather(state);
-				}				
-			}
-			state.setChildren(children);
-//			System.out.println("Level: " + state.level + " Depth: " + depth);
-		}
-	}
-	
-	public ArrayDeque<BoardState> firstMoves(Percept p) {
-		ArrayDeque<BoardState> moves = new ArrayDeque<BoardState>();
-		ArrayDeque<String> empty = new ArrayDeque<String>();
-		
-		for(int i=0; i<SIZE;i++) {
-			for(int j=0; j<SIZE;j++) {
-				if(getCell(p, i, j).equals("space")) {
-					empty.add(square(i, j));
-				}
-			}
-		}			
-		
-		int nMove = 0;
-		BoardState nilState = new BoardState("", -1, -1, new HashMap<String, String>(), 0, RIVAL, null);
-		nilState.setEmpty(empty);		
-		
-		for(String s : empty) {			
-			int ij[]=splitString(s);			
-			BoardState validMove = minimaxCheckValidMove(p, ij[0], ij[1], nilState);
-			if(validMove!=null) {
-				validMove.setPath(new ArrayList<Integer>(),nMove++);
-				moves.add(validMove);			
-			}
-		}
-		return moves;
-	}
-	
-	public BoardState minimaxCheckValidMove(Percept p, int x, int y, BoardState bs) {
-		HashMap <String, String> totalChanges = (HashMap <String, String>) bs.changedMap.clone();
-		int score=1;
-		String tile=square(x,y);
-		boolean changes=false;
-		for(int i=-1; i<2; i++) {
-			if((x+i)<0 || (x+i)>=SIZE)
-				continue;
-			
-			for(int j=-1; j<2; j++) {
-				if((y+j)<0 || (y+j)>=SIZE)
-					continue;
-				
-				if((j==0&&i==0))
-					continue;
-				
-				int actualX= x+i;
-				int actualY= y+j;
-				String n=bs.getCell(p, actualX, actualY);
-				
-				if (!n.equals(bs.color)) 
-					continue;
-					
-				if((x+2*i)<0 || (x+2*i)>=SIZE || (y+2*j)<0 || (y+2*j)>=SIZE)
-					continue;
-				
-				int tmpScore=0;
-				boolean found=true;
-				HashMap <String, String> tmp=new HashMap<String,String>();
-				while(n.equals(bs.color)) {
-					tmp.put(square(actualX,actualY),bs.rival);
-					tmpScore+=1;
-					actualX+=i;
-					actualY+=j;
-					if((actualX)<0 || (actualX)>=SIZE || (actualY)<0 || (actualY)>=SIZE) {
-						found=false;
-						break;
-					}
-					n=bs.getCell(p, actualX, actualY);
-				}
-				
-				if(n.equals(bs.rival) && found) {
-					changes=true;
-					score+=tmpScore;
-					totalChanges.putAll(tmp);
-				}
-			}
-		}
-		
-		if(changes) {
-			totalChanges.put(tile, bs.rival);
-			int newMax = -bs.max;
-			int nScore = bs.score + score*bs.max;			
-			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival, bs);
-			nbs.setEmpty(bs.emptyTiles);			
-			return nbs;
-		}
-		return null;
-	}
 	
 	/**
 	 * Me analiza cual de las opciones es la más indicada.
@@ -495,6 +324,7 @@ public class Board2 {
 			}
 		}
 		empty.remove(best_choice);
+		regions=removeRegion(best_choice,regions);
 		return best_choice;
 	}
 
@@ -617,7 +447,7 @@ public class Board2 {
 	 * @return
 	 */
 	public BoardState minimaxAnalizeValidMove(Percept p, int x, int y, BoardState bs) {
-		HashMap <String, String> totalChanges = (HashMap <String, String>) bs.changedMap.clone();
+		HashMap <String, String> totalChanges = new HashMap <String, String>(bs.changedMap);
 		int score=1;
 		String tile=square(x,y);
 		boolean changes=false;
@@ -668,8 +498,9 @@ public class Board2 {
 		if(changes) {
 			totalChanges.put(tile, bs.rival);
 			int newMax = -bs.max;
+			score+=regionWeights(x,y,bs.localRegions);
 			int nScore = bs.score + score*bs.max;
-			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival, null);
+			BoardState nbs = new BoardState(tile, newMax, 1+bs.level, totalChanges, nScore, bs.rival, bs.localRegions);
 			nbs.setEmpty(bs.emptyTiles);
 			return nbs;
 		}
@@ -697,45 +528,26 @@ public class Board2 {
 		public int score;
 		public String color;
 		public String rival;
-		public int value;
-		public BoardState father;
 		public ArrayDeque <String> emptyTiles; 
-		public ArrayList <Integer> path;
-		public ArrayList <BoardState> children;
-		
-		
-		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color, BoardState father) {
+		public HashMap<String, Integer> localRegions; 
+		public BoardState(String changed, int max, int level, HashMap <String, String> changedMap, int score, String color, HashMap <String, Integer> regions) {
 			this.changed=changed;
 			this.max=max;
 			this.level=level;
-			this.changedMap= (HashMap <String, String>) changedMap.clone();
+			this.changedMap= new HashMap <String, String>(changedMap);
 			this.score=score;
 			this.color=color;
-			this.father = father;
 			rival=color.equals("white") ? "black":"white";
+			localRegions = new HashMap <String, Integer>(regions);
+			localRegions = removeRegion(changed, localRegions);
 		}
 		
-		public void setChildren(ArrayList<BoardState> children) {
-			this.children =  new ArrayList<BoardState>(children);
-		}
 		
-		public void setFather(BoardState father) {
-			this.father = father;
-		}
-		
-		public void setPath(ArrayList<Integer> path, int newIndx) {
-			this.path = new ArrayList<Integer>(path);
-			this.path.add(newIndx);
-		}
 		
 		// Me inicializa un mapa de los vacíos basado en el mapa padre + la ficha representante.
 		public void setEmpty(ArrayDeque<String> e) {
 			emptyTiles = e.clone();
 			emptyTiles.remove(changed);
-		}
-		
-		public void setValue(int value) {
-			this.value = value;
 		}
 		
 		
